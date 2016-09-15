@@ -18,14 +18,40 @@ import rx.functions.Func1;
 
 public class Sample {
 
-    public static void main(String[] args) {
+    /**
+     * 测试数据
+     */
+    public static void launchNormal0() {
 
+        ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
+
+//        User user = new User(1, "Kevin");
+//        objReq.setTestData(user);// for test
+
+        String json = "{\"id\": 2, \"name\": \"Daisw\"}";
+        objReq.setTestData(json);// for test
+
+        objReq.setResponseListener(new ObjectResponse<User>() {
+
+            @Override
+            public void onSuccess(Object tag, User user) {
+
+                System.out.println("~~onSuccess user: " + user);
+            }
+
+            @Override
+            public void onError(Object tag, String msg) {
+
+                System.out.println("~~onError msg: " + msg);
+            }
+        });
+        JoyHttp.getLauncher().launchRefreshOnly(objReq);
     }
 
     /**
      * GET请求方式, 并且可以提供完整的URL
      */
-    private static void launchNormal1() {
+    public static void launchNormal1() {
 
         ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
         objReq.setResponseListener(new ObjectResponse<User>() {
@@ -39,7 +65,7 @@ public class Sample {
     /**
      * GET或post请求方式, 提供了基本的URL如"http://open.qyer.com"和参数列表params
      */
-    private static void launchNormal2() {
+    public static void launchNormal2() {
 
         Map<String, String> params = new HashMap<>();
         params.put("page", "1");
@@ -57,7 +83,7 @@ public class Sample {
     /**
      * GET或post请求方式, 提供了基本的URL如"http://open.qyer.com"、参数列表params和请求头headers
      */
-    private static void launchNormal3() {
+    public static void launchNormal3() {
 
         Map<String, String> params = new HashMap<>();
         params.put("page", "1");
@@ -76,7 +102,7 @@ public class Sample {
         JoyHttp.getLauncher().launchRefreshOnly(objReq);
     }
 
-    private static void launchNormal4() {
+    public static void launchNormal4() {
 
         ObjectRequest<User> objReq = ReqFactory.newGet("api", User.class);
         objReq.setResponseListener(new ObjectResponse<User>() {
@@ -91,7 +117,7 @@ public class Sample {
         JoyHttp.getLauncher().launchRefreshOnly(objReq);
     }
 
-    private static void launchRx1() {
+    public static void launchRx1() {
 
         ObjectRequest<User> objReq = ReqFactory.newGet("api", User.class);
         JoyHttp.getLauncher().launchRefreshOnly(objReq)
@@ -108,7 +134,7 @@ public class Sample {
                 });
     }
 
-    private static void launchRx2() {
+    public static void launchRx2() {
 
         ObjectRequest<User> objReq = ReqFactory.newGet("api", User.class);
         JoyHttp.getLauncher().launchRefreshOnly(objReq)
@@ -129,7 +155,7 @@ public class Sample {
                 });
     }
 
-    private static void launchRx3() {
+    public static void launchRx3() {
 
         ObjectRequest<User> objReq = ReqFactory.newGet("api", User.class);
         JoyHttp.getLauncher().launchRefreshOnly(objReq)

@@ -298,9 +298,38 @@ public class ObjectRequest<T> extends Request<T> {
     // --- for test data ---
     private T t;
 
-    public void setData(T t) {
+    public void setTestData(T t) {
 
         this.t = t;
+    }
+
+    public void setTestData(String json) {
+
+        try {
+
+            if (TextUtils.isEmpty(json)) {
+
+                t = (T) mClazz.newInstance();
+            } else {
+
+                if (mClazz.newInstance() instanceof String) {
+
+                    t = (T) json;
+                } else {
+
+                    if (json.startsWith("[")) {// JsonArray
+
+                        t = ((T) JSON.parseArray(json, mClazz));
+                    } else {// JsonObj
+
+                        t = (T) JSON.parseObject(json, mClazz);
+                    }
+                }
+            }
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
     }
 
     private boolean isTestMode() {

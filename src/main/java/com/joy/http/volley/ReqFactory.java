@@ -35,7 +35,7 @@ public class ReqFactory {
             return req;
         }
 
-        return newGet(sb.toString(), clazz);
+        return ObjectRequest.get(sb.toString(), clazz);
     }
 
     /**

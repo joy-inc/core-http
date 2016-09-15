@@ -34,7 +34,44 @@ public class JoyApplication extends Application {
 }
 ```
 
-##### 发送请求
+##### 测试模式, 发送请求
+
+- 设置测试bean
+
+```
+ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
+
+User user = new User(1, "Kevin");
+objReq.setTestData(user);// for test
+
+objReq.setResponseListener(new ObjectResponse<User>() {
+    @Override
+    public void onSuccess(Object tag, User user) {
+    }
+});
+JoyHttp.getLauncher().launchRefreshOnly(objReq);
+```
+
+- 设置测试json
+
+```
+ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
+
+String json = "{
+               "id": 1,
+               "name": "Kevin"
+               }";
+objReq.setTestData(json);// for test
+
+objReq.setResponseListener(new ObjectResponse<User>() {
+    @Override
+    public void onSuccess(Object tag, User user) {
+    }
+});
+JoyHttp.getLauncher().launchRefreshOnly(objReq);
+```
+
+##### 正常模式, 发送请求
 
 - 普通回调方式
 
@@ -49,18 +86,6 @@ objReq.setResponseListener(new ObjectResponse<User>() {
 
     @Override
     public void onError(Object tag, String msg) {
-    }
-});
-JoyHttp.getLauncher().launchRefreshOnly(objReq);
-```
-
-倘若我们只关心成功的回调, 可以不重载onError方法。代码如下:
-
-```
-ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
-objReq.setResponseListener(new ObjectResponse<User>() {
-    @Override
-    public void onSuccess(Object tag, User user) {
     }
 });
 JoyHttp.getLauncher().launchRefreshOnly(objReq);
@@ -104,8 +129,6 @@ JoyHttp.getLauncher().launchRefreshOnly(objReq);
 
 - Rx订阅方式
 
-关心成功、失败、完成
-
 ```
 ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
 JoyHttp.getLauncher().launchRefreshOnly(objReq)
@@ -126,46 +149,6 @@ JoyHttp.getLauncher().launchRefreshOnly(objReq)
         }, new Action0() {
             @Override
             public void call() {// complete
-            }
-        });
-```
-
-只关心成功
-
-```
-ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
-JoyHttp.getLauncher().launchRefreshOnly(objReq)
-        .filter(new Func1<User, Boolean>() {
-            @Override
-            public Boolean call(User user) {
-                return user != null;
-            }
-        })
-        .subscribe(new Action1<User>() {
-            @Override
-            public void call(User user) {// success
-            }
-        });
-```
-
-只关心成功和失败
-
-```
-ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
-JoyHttp.getLauncher().launchRefreshOnly(objReq)
-        .filter(new Func1<User, Boolean>() {
-            @Override
-            public Boolean call(User user) {
-                return user != null;
-            }
-        })
-        .subscribe(new Action1<User>() {
-            @Override
-            public void call(User user) {// success
-            }
-        }, new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {// error
             }
         });
 ```
