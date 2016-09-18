@@ -36,4 +36,6 @@ dependencies {
     compile "com.alibaba:fastjson:$FASTJSON_VERSION"
     // rxjava
     compile "io.reactivex:rxjava:$RXJAVA_VERSION"
+
+    compile 'io.reactivex:rxandroid:1.2.1'
 }
