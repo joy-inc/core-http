@@ -2,6 +2,33 @@
 
 Android网络请求库
 
+### Add JoyHttp to your project
+
+Gradle:
+
+```
+compile 'com.joy.http:JoyHttp:0.0.1'
+```
+
+Maven:
+
+```
+<dependency>
+  <groupId>com.joy.http</groupId>
+  <artifactId>JoyHttp</artifactId>
+  <version>0.0.1</version>
+  <type>pom</type>
+</dependency>
+```
+
+ Ivy:
+
+ ```
+ <dependency org='com.joy.http' name='JoyHttp' rev='0.0.1'>
+   <artifact name='$AID' ext='pom'></artifact>
+ </dependency>
+ ```
+
 ### 请求方式：  
 - `REFRESH_ONLY` 获取网络，响应；
 - `CACHE_ONLY` 获取缓存，响应；
