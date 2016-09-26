@@ -7,7 +7,7 @@ Android网络请求库
 Gradle:
 
 ```
-compile 'com.joy.http:JoyHttp:0.0.1'
+compile 'com.joy.http:JoyHttp:0.0.2'
 ```
 
 Maven:
@@ -16,7 +16,7 @@ Maven:
 <dependency>
   <groupId>com.joy.http</groupId>
   <artifactId>JoyHttp</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
   <type>pom</type>
 </dependency>
 ```
@@ -24,7 +24,7 @@ Maven:
  Ivy:
 
  ```
- <dependency org='com.joy.http' name='JoyHttp' rev='0.0.1'>
+ <dependency org='com.joy.http' name='JoyHttp' rev='0.0.2'>
    <artifact name='$AID' ext='pom'></artifact>
  </dependency>
  ```
