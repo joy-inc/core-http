@@ -62,7 +62,7 @@ public class ObjectRequest<T> extends Request<T> {
         addEntryListener();
         setRetryPolicy(new DefaultRetryPolicy(DEFAULT_TIMEOUT_MS, DEFAULT_MAX_RETRIES, DEFAULT_BACKOFF_MULT));
 
-        mSubject = new SerializedSubject<>(PublishSubject.create());
+        mSubject = new SerializedSubject<>(PublishSubject.<T>create());
     }
 
     Observable<T> observable() {
@@ -84,10 +84,12 @@ public class ObjectRequest<T> extends Request<T> {
             cache.removeEntryListener(mOnEntryListener);
     }
 
-    private RetroCache.OnEntryListener mOnEntryListener = entry -> {
-
-        if (entry != null)
-            entry.setRequestMode(mReqMode);
+    private RetroCache.OnEntryListener mOnEntryListener = new RetroCache.OnEntryListener() {
+        @Override
+        public void onEntry(RetroEntry entry) {
+            if (entry != null)
+                entry.setRequestMode(mReqMode);
+        }
     };
 
     /**

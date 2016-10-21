@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">JoyHttp</string>
 
     <!-- volley -->
     <string name="no_network_connection" translatable="false">No network connection found</string>

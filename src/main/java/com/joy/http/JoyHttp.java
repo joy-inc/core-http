@@ -3,6 +3,7 @@ package com.joy.http;
 import android.content.Context;
 
 import com.android.volley.Cache;
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyLog;
 import com.joy.http.volley.RetroRequestQueue;
@@ -46,7 +47,12 @@ public class JoyHttp {
         if (mReqQueue != null) {
 
             mReqQueue.removeRequestFinishedListener(mReqFinishLis);
-            mReqQueue.cancelAll(request -> true);
+            mReqQueue.cancelAll(new RequestQueue.RequestFilter() {
+                @Override
+                public boolean apply(Request<?> request) {
+                    return true;
+                }
+            });
 //            mReqQueue.stop();
 //            mReqQueue = null;
         }
@@ -65,9 +71,11 @@ public class JoyHttp {
         return mReqQueue == null ? null : mReqQueue.getCache();
     }
 
-    private static RequestQueue.RequestFinishedListener mReqFinishLis = request -> {
-
-        if (VolleyLog.DEBUG)
-            VolleyLog.d("~~request finished. tag: " + request.getTag() + ", sequence number: " + request.getSequence());
+    private static RequestQueue.RequestFinishedListener mReqFinishLis = new RequestQueue.RequestFinishedListener() {
+        @Override
+        public void onRequestFinished(Request request) {
+            if (VolleyLog.DEBUG)
+                VolleyLog.d("~~request finished. tag: " + request.getTag() + ", sequence number: " + request.getSequence());
+        }
     };
 }
