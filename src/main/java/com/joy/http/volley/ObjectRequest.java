@@ -241,6 +241,8 @@ public class ObjectRequest<T> extends Request<T> {
                 resp.setStatus(jsonObj.getInt("status"));
             if (jsonObj.has("msg"))
                 resp.setMsg(jsonObj.getString("msg"));
+            else if (jsonObj.has("info"))
+                resp.setMsg(jsonObj.getString("info"));
 
             if (resp.isSuccess()) {
 
