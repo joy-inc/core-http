@@ -31,28 +31,28 @@ public class ErrorHelper {
         if (error == null)
             return "";
 
-        String StringRes = "";
+        String errorMsg = "";
         if (error instanceof TimeoutError) {
 
-            StringRes = "Server Timeout";
+            errorMsg = "Server Timeout";
         } else if (error instanceof ServerError) {
 
-            StringRes = "Server down";
+            errorMsg = "Server down";
         } else if (error instanceof AuthFailureError) {
 
-            StringRes = "Authentication Failure";
+            errorMsg = "Authentication Failure";
         } else if (error instanceof NetworkError) {
 
-            StringRes = "No internet";
+            errorMsg = "No internet";
         } else if (error instanceof NoConnectionError) {
 
-            StringRes = "No network connection found";
+            errorMsg = "No network connection found";
         } else if (error instanceof ParseError) {
 
-            StringRes = "Parsing Failure";
+            errorMsg = "Parsing Failure";
         }
 //        return "No internet";
-        return TextUtils.isEmpty(StringRes) ? error.getMessage() : StringRes;
+        return TextUtils.isEmpty(errorMsg) ? error.getMessage() : errorMsg;
     }
 
     /**

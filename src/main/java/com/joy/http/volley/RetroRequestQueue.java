@@ -102,11 +102,6 @@ public final class RetroRequestQueue extends RequestQueue {
 
     public void cancelAllLauncher() {
 
-        cancelAll(new RequestFilter() {
-            @Override
-            public boolean apply(Request<?> request) {
-                return true;
-            }
-        });
+        cancelAll(request -> true);
     }
 }

@@ -3,7 +3,6 @@ package com.joy.http;
 import android.content.Context;
 
 import com.android.volley.Cache;
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyLog;
 import com.joy.http.volley.RetroRequestQueue;
@@ -20,13 +19,11 @@ public class JoyHttp {
     private static RetroRequestQueue mReqQueue;
 
     public static void initialize(Context context, boolean debug) {
-
         initVolley(context);
         VolleyLog.DEBUG = debug;
     }
 
     public static void shutDown() {
-
         releaseVolley();
     }
 
@@ -34,25 +31,16 @@ public class JoyHttp {
      * the queue will be created if it is null.
      */
     private static void initVolley(Context context) {
-
         if (mReqQueue == null) {
-
             mReqQueue = RetroVolley.newRequestQueue(context);
             mReqQueue.addRequestFinishedListener(mReqFinishLis);
         }
     }
 
     private static void releaseVolley() {
-
         if (mReqQueue != null) {
-
             mReqQueue.removeRequestFinishedListener(mReqFinishLis);
-            mReqQueue.cancelAll(new RequestQueue.RequestFilter() {
-                @Override
-                public boolean apply(Request<?> request) {
-                    return true;
-                }
-            });
+            mReqQueue.cancelAll(request -> true);
 //            mReqQueue.stop();
 //            mReqQueue = null;
         }
@@ -62,20 +50,16 @@ public class JoyHttp {
      * @return The Volley Request queue.
      */
     public static RetroRequestQueue getLauncher() {
-
         return mReqQueue;
     }
 
     public static Cache getVolleyCache() {
-
         return mReqQueue == null ? null : mReqQueue.getCache();
     }
 
-    private static RequestQueue.RequestFinishedListener mReqFinishLis = new RequestQueue.RequestFinishedListener() {
-        @Override
-        public void onRequestFinished(Request request) {
-            if (VolleyLog.DEBUG)
-                VolleyLog.d("~~request finished. tag: " + request.getTag() + ", sequence number: " + request.getSequence());
+    private static RequestQueue.RequestFinishedListener mReqFinishLis = request -> {
+        if (VolleyLog.DEBUG) {
+            VolleyLog.d("~~request finished. tag: %s, sequence number: %d", request.getTag(), request.getSequence());
         }
     };
 }

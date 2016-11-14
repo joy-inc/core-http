@@ -54,7 +54,6 @@ public class ObjectRequest<T> extends Request<T> {
      * @param clazz  the Object class to return
      */
     private ObjectRequest(int method, String url, Class clazz) {
-
         super(method, url, null);
         mClazz = clazz;
         mHasCache = JoyHttp.getVolleyCache().get(getCacheKey()) != null;
@@ -66,29 +65,25 @@ public class ObjectRequest<T> extends Request<T> {
     }
 
     Observable<T> observable() {
-
         return mSubject;
     }
 
     private void addEntryListener() {
-
         RetroCache cache = (RetroCache) JoyHttp.getVolleyCache();
-        if (cache != null)
+        if (cache != null) {
             cache.addEntryListener(mOnEntryListener);
+        }
     }
 
     private void removeEntryListener() {
-
         RetroCache cache = (RetroCache) JoyHttp.getVolleyCache();
         if (cache != null)
             cache.removeEntryListener(mOnEntryListener);
     }
 
-    private RetroCache.OnEntryListener mOnEntryListener = new RetroCache.OnEntryListener() {
-        @Override
-        public void onEntry(RetroEntry entry) {
-            if (entry != null)
-                entry.setRequestMode(mReqMode);
+    private RetroCache.OnEntryListener mOnEntryListener = entry -> {
+        if (entry != null) {
+            entry.setRequestMode(mReqMode);
         }
     };
 
@@ -99,7 +94,6 @@ public class ObjectRequest<T> extends Request<T> {
      * @param clazz the Object class to return
      */
     static <T> ObjectRequest<T> get(String url, Class clazz) {
-
         return new <T>ObjectRequest<T>(Method.GET, url, clazz);
     }
 
@@ -110,49 +104,43 @@ public class ObjectRequest<T> extends Request<T> {
      * @param clazz the Object class to return
      */
     static <T> ObjectRequest<T> post(String url, Class clazz) {
-
         return new <T>ObjectRequest<T>(Method.POST, url, clazz);
     }
 
     void setHeaders(Map<String, String> headers) {
-
         mHeaders = headers;
     }
 
     void setParams(Map<String, String> params) {
-
         mParams = params;
     }
 
     @Override
     public Map<String, String> getHeaders() throws AuthFailureError {
-
-        if (mHeaders != null && !mHeaders.isEmpty())
+        if (mHeaders != null && !mHeaders.isEmpty()) {
             return mHeaders;
+        }
         return super.getHeaders();
     }
 
     @Override
     protected Map<String, String> getParams() throws AuthFailureError {
-
-        if (mParams != null && !mParams.isEmpty())
+        if (mParams != null && !mParams.isEmpty()) {
             return mParams;
+        }
         return super.getParams();
     }
 
     public void setRequestMode(RequestMode mode) {
-
         mReqMode = mode;
         setShouldCache(mode != REFRESH_ONLY);
     }
 
     public RequestMode getRequestMode() {
-
         return mReqMode;
     }
 
     public boolean hasCache() {
-
         return mHasCache;
     }
 
@@ -160,7 +148,6 @@ public class ObjectRequest<T> extends Request<T> {
      * @return True if this response was a soft-expired one and a second one MAY be coming.
      */
     public boolean isFinalResponse() {
-
         return mObjResp != null && !mObjResp.intermediate;
     }
 
@@ -168,74 +155,62 @@ public class ObjectRequest<T> extends Request<T> {
      * @param lisn Listener to receive the Object response
      */
     public void setResponseListener(ObjectResponseListener<T> lisn) {
-
         mObjRespLis = lisn;
     }
 
     @Override
     protected void deliverResponse(T t) {
-
-        if (mObjRespLis != null)
+        if (mObjRespLis != null) {
             mObjRespLis.onSuccess(getTag(), isTestMode() ? this.t : t);
-
+        }
         mSubject.onNext(t);
     }
 
     @Override
     public void deliverError(VolleyError error) {
-
         if (isTestMode()) {
-
             deliverResponse(t);
         } else {
-
-            if (mObjRespLis != null)
+            if (mObjRespLis != null) {
                 mObjRespLis.onError(getTag(), error);
-
+            }
             mSubject.onError(error);
         }
     }
 
     @Override
     public Response<T> parseNetworkResponse(NetworkResponse response) {
-
         String parsed;
         try {
-
             String charsetName = HttpHeaderParser.parseCharset(response.headers);
             parsed = new String(response.data, charsetName);
         } catch (UnsupportedEncodingException e) {
-
             parsed = new String(response.data);
             e.printStackTrace();
         }
-
         QyerResponse<T> resp = onResponse(parsed);
         if (resp.isSuccess()) {
-
             Entry entry = HttpHeaderParser.parseCacheHeaders(response);
             mObjResp = Response.success(resp.getData(), entry);
             return mObjResp;
         } else {
-
             return Response.error(new VolleyError(resp.getMsg()));
         }
     }
 
     private QyerResponse<T> onResponse(String json) {
-
-        VolleyLog.d("~~json: " + json);
+        if (VolleyLog.DEBUG) {
+            VolleyLog.d("~~onResponse # json: %s", json);
+        }
 
         QyerResponse<T> resp = new <T>QyerResponse<T>();
 
         if (TextUtils.isEmpty(json)) {
-
             resp.setParseBrokenStatus();
             return resp;
         }
 
         try {
-
             JSONObject jsonObj = new JSONObject(json);
             if (jsonObj.has("status"))
                 resp.setStatus(jsonObj.getInt("status"));
@@ -245,30 +220,22 @@ public class ObjectRequest<T> extends Request<T> {
                 resp.setMsg(jsonObj.getString("info"));
 
             if (resp.isSuccess()) {
-
                 json = jsonObj.getString("data");
                 if (TextUtils.isEmpty(json)) {
-
                     resp.setData((T) mClazz.newInstance());
                 } else {
-
                     if (mClazz.newInstance() instanceof String) {
-
                         resp.setData((T) json);
                     } else {
-
                         if (json.startsWith("[")) {// JsonArray
-
                             resp.setData(((T) JSON.parseArray(json, mClazz)));
                         } else {// JsonObj
-
                             resp.setData((T) JSON.parseObject(json, mClazz));
                         }
                     }
                 }
             }
         } catch (Exception e) {
-
             resp.setParseBrokenStatus();
             e.printStackTrace();
         }
@@ -277,6 +244,9 @@ public class ObjectRequest<T> extends Request<T> {
 
     @Override
     protected void onFinish() {
+        if (VolleyLog.DEBUG) {
+            VolleyLog.d("finished # tag: %s", getTag());
+        }
 
         mSubject.onCompleted();
 
@@ -303,60 +273,47 @@ public class ObjectRequest<T> extends Request<T> {
     private T t;
 
     public void setTestData(T t) {
-
         this.t = t;
     }
 
     public void setTestData(String json) {
-
         try {
-
             if (TextUtils.isEmpty(json)) {
-
                 t = (T) mClazz.newInstance();
             } else {
-
                 if (mClazz.newInstance() instanceof String) {
-
                     t = (T) json;
                 } else {
-
                     if (json.startsWith("[")) {// JsonArray
-
                         t = ((T) JSON.parseArray(json, mClazz));
                     } else {// JsonObj
-
                         t = (T) JSON.parseObject(json, mClazz);
                     }
                 }
             }
         } catch (Exception e) {
-
             e.printStackTrace();
         }
     }
 
     private boolean isTestMode() {
-
         return t != null;
     }
 
-//    @Override
-//    public void cancel() {
-//
-//        super.cancel();
-//
-//        VolleyLog.d("~~cancel tag: " + getTag());
-//    }
+    @Override
+    public void cancel() {
+        super.cancel();
+        if (VolleyLog.DEBUG) {
+            VolleyLog.d("~~cancel # tag: %s", getTag());
+        }
+    }
 
     public void setCacheKey(String cacheKey) {
-
         mCacheKey = cacheKey;
     }
 
     @Override
     public String getCacheKey() {
-
         return TextUtils.isEmpty(mCacheKey) ? super.getCacheKey() : mCacheKey;
     }
 }
