@@ -9,11 +9,9 @@ public abstract class ObjectResponse<T> implements ObjectResponseListener<T> {
 
     @Override
     public void onError(Object tag, VolleyError error) {
-
         onError(tag, ErrorHelper.getErrorType(error));
     }
 
     public void onError(Object tag, String msg) {
-
     }
 }

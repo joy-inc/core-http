@@ -59,7 +59,7 @@ public class JoyHttp {
 
     private static RequestQueue.RequestFinishedListener mReqFinishLis = request -> {
         if (VolleyLog.DEBUG) {
-            VolleyLog.d("~~request finished. tag: %s, sequence number: %d", request.getTag(), request.getSequence());
+            VolleyLog.d("~~Global monitor # request finished. tag: %s, sequence number: %d", request.getTag(), request.getSequence());
         }
     };
 }

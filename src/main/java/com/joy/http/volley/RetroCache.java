@@ -132,7 +132,6 @@ public class RetroCache implements Cache {
      */
     @Override
     public synchronized Entry get(String key) {
-
         CacheHeader cacheHeader = mEntries.get(key);
         // if the entry does not exist, return.
         if (cacheHeader == null)
@@ -141,7 +140,6 @@ public class RetroCache implements Cache {
         File file = getFileForKey(key);
         CountingInputStream cis = null;
         try {
-
             cis = new CountingInputStream(new BufferedInputStream(new FileInputStream(file)));
             CacheHeader.readHeader(cis); // eat header
             byte[] data = streamToBytes(cis, (int) (file.length() - cis.bytesRead));
@@ -151,17 +149,14 @@ public class RetroCache implements Cache {
 
             return entry;
         } catch (IOException e) {
-
             VolleyLog.d("%s: %s", file.getAbsolutePath(), e.toString());
             remove(key);
             return null;
         } catch (NegativeArraySizeException e) {
-
             VolleyLog.d("%s: %s", file.getAbsolutePath(), e.toString());
             remove(key);
             return null;
         } finally {
-
             if (cis != null) {
                 try {
                     cis.close();
@@ -178,36 +173,34 @@ public class RetroCache implements Cache {
      */
     @Override
     public synchronized void initialize() {
-
         if (!mRootDirectory.exists()) {
-
-            if (!mRootDirectory.mkdirs())
+            if (!mRootDirectory.mkdirs()) {
                 VolleyLog.e("Unable to create cache dir %s", mRootDirectory.getAbsolutePath());
+            }
             return;
         }
 
         File[] files = mRootDirectory.listFiles();
-        if (files == null)
+        if (files == null) {
             return;
+        }
 
         for (File file : files) {
-
             BufferedInputStream fis = null;
             try {
-
                 fis = new BufferedInputStream(new FileInputStream(file));
                 CacheHeader entry = CacheHeader.readHeader(fis);
                 entry.size = file.length();
                 putEntry(entry.key, entry);
             } catch (IOException e) {
-
-                if (file != null)
+                if (file != null) {
                     file.delete();
+                }
             } finally {
-
                 try {
-                    if (fis != null)
+                    if (fis != null) {
                         fis.close();
+                    }
                 } catch (IOException ignored) {
                 }
             }

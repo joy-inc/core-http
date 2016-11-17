@@ -27,28 +27,20 @@ public class ErrorHelper {
      * @return Return generic message for errors
      */
     public static String getErrorType(Throwable error) {
-
         if (error == null)
             return "";
-
         String errorMsg = "";
         if (error instanceof TimeoutError) {
-
             errorMsg = "Server Timeout";
         } else if (error instanceof ServerError) {
-
             errorMsg = "Server down";
         } else if (error instanceof AuthFailureError) {
-
             errorMsg = "Authentication Failure";
         } else if (error instanceof NetworkError) {
-
             errorMsg = "No internet";
         } else if (error instanceof NoConnectionError) {
-
             errorMsg = "No network connection found";
         } else if (error instanceof ParseError) {
-
             errorMsg = "Parsing Failure";
         }
 //        return "No internet";
@@ -62,7 +54,6 @@ public class ErrorHelper {
      * @return
      */
     private static boolean isNetworkProblem(Throwable error) {
-
         return (error instanceof NetworkError) || (error instanceof NoConnectionError);
     }
 
@@ -73,7 +64,6 @@ public class ErrorHelper {
      * @return
      */
     private static boolean isServerProblem(Throwable error) {
-
         return (error instanceof ServerError) || (error instanceof AuthFailureError);
     }
 }

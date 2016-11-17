@@ -13,6 +13,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.joy.http.JoyHttp;
+import com.joy.http.utils.ParamsUtil;
 
 import org.json.JSONObject;
 
@@ -245,7 +246,7 @@ public class ObjectRequest<T> extends Request<T> {
     @Override
     protected void onFinish() {
         if (VolleyLog.DEBUG) {
-            VolleyLog.d("finished # tag: %s", getTag());
+            VolleyLog.d("~~Finished # tag: %s", getTag());
         }
 
         mSubject.onCompleted();
@@ -304,7 +305,7 @@ public class ObjectRequest<T> extends Request<T> {
     public void cancel() {
         super.cancel();
         if (VolleyLog.DEBUG) {
-            VolleyLog.d("~~cancel # tag: %s", getTag());
+            VolleyLog.d("~~Canceled # tag: %s", getTag());
         }
     }
 
@@ -314,6 +315,9 @@ public class ObjectRequest<T> extends Request<T> {
 
     @Override
     public String getCacheKey() {
+        if (getMethod() == Method.POST) {
+            return Method.POST + ":" + getOriginUrl() + "?" + ParamsUtil.createUrl(mParams);
+        }
         return TextUtils.isEmpty(mCacheKey) ? super.getCacheKey() : mCacheKey;
     }
 }
