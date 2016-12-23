@@ -4,7 +4,7 @@ import com.joy.http.JoyError;
 import com.joy.http.JoyErrorAction;
 import com.joy.http.JoyHttp;
 import com.joy.http.volley.ObjectRequest;
-import com.joy.http.volley.ObjectResponse;
+import com.joy.http.volley.ObjectResponseListener;
 import com.joy.http.volley.ReqFactory;
 
 import java.util.HashMap;
@@ -32,15 +32,15 @@ public class Sample {
         String json = "{\"id\": 2, \"name\": \"Daisw\"}";
         objReq.setTestData(json);// for test
 
-        objReq.setResponseListener(new ObjectResponse<User>() {
+        objReq.setResponseListener(new ObjectResponseListener<User>() {
             @Override
             public void onSuccess(Object tag, User user) {
                 System.out.println("~~onSuccess user: " + user);
             }
 
             @Override
-            public void onError(Object tag, String msg) {
-                System.out.println("~~onError msg: " + msg);
+            public void onError(Object tag, JoyError error) {
+                System.out.println("~~onError msg: " + error.getMessage());
             }
         });
         JoyHttp.getLauncher().launchRefreshOnly(objReq);
@@ -51,9 +51,13 @@ public class Sample {
      */
     public static void launchNormal1() {
         ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
-        objReq.setResponseListener(new ObjectResponse<User>() {
+        objReq.setResponseListener(new ObjectResponseListener<User>() {
             @Override
             public void onSuccess(Object tag, User user) {
+            }
+
+            @Override
+            public void onError(Object tag, JoyError error) {
             }
         });
         JoyHttp.getLauncher().launchRefreshOnly(objReq);
@@ -68,9 +72,13 @@ public class Sample {
         params.put("count", "20");
 
         ObjectRequest<User> objReq = ReqFactory.newGet("http://open.qyer.com", User.class, params);
-        objReq.setResponseListener(new ObjectResponse<User>() {
+        objReq.setResponseListener(new ObjectResponseListener<User>() {
             @Override
             public void onSuccess(Object tag, User user) {
+            }
+
+            @Override
+            public void onError(Object tag, JoyError error) {
             }
         });
         JoyHttp.getLauncher().launchRefreshOnly(objReq);
@@ -89,9 +97,13 @@ public class Sample {
         headers.put("user-token", "user_token");
 
         ObjectRequest<User> objReq = ReqFactory.newGet("http://open.qyer.com", User.class, params, headers);
-        objReq.setResponseListener(new ObjectResponse<User>() {
+        objReq.setResponseListener(new ObjectResponseListener<User>() {
             @Override
             public void onSuccess(Object tag, User user) {
+            }
+
+            @Override
+            public void onError(Object tag, JoyError error) {
             }
         });
         JoyHttp.getLauncher().launchRefreshOnly(objReq);
@@ -99,13 +111,13 @@ public class Sample {
 
     public static void launchNormal4() {
         ObjectRequest<User> objReq = ReqFactory.newGet("api", User.class);
-        objReq.setResponseListener(new ObjectResponse<User>() {
+        objReq.setResponseListener(new ObjectResponseListener<User>() {
             @Override
             public void onSuccess(Object tag, User user) {
             }
 
             @Override
-            public void onError(Object tag, String msg) {
+            public void onError(Object tag, JoyError error) {
             }
         });
         JoyHttp.getLauncher().launchRefreshOnly(objReq);
