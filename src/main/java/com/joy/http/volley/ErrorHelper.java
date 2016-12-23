@@ -6,6 +6,7 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
+import com.android.volley.RedirectError;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 
@@ -27,9 +28,10 @@ public class ErrorHelper {
      * @return Return generic message for errors
      */
     public static String getErrorType(Throwable error) {
-        if (error == null)
-            return "";
         String errorMsg = "";
+        if (error == null) {
+            return errorMsg;
+        }
         if (error instanceof TimeoutError) {
             errorMsg = "Server Timeout";
         } else if (error instanceof ServerError) {
@@ -42,8 +44,9 @@ public class ErrorHelper {
             errorMsg = "No network connection found";
         } else if (error instanceof ParseError) {
             errorMsg = "Parsing Failure";
+        } else if (error instanceof RedirectError) {
+            errorMsg = "Redirect Error";
         }
-//        return "No internet";
         return TextUtils.isEmpty(errorMsg) ? error.getMessage() : errorMsg;
     }
 

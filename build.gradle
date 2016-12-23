@@ -11,7 +11,7 @@ ext {
     libraryName = "core-http"// 发布到JCenter上的项目名字
 }
 
-version = "0.0.3"// This is the library version used when deploying the artifact
+version = "0.0.4"// This is the library version used when deploying the artifact
 group = "com.joy.support"// Maven Group ID for the artifact，一般填你唯一的包名
 
 android {
@@ -21,7 +21,7 @@ android {
     defaultConfig {
         minSdkVersion 12
         targetSdkVersion rootProject.ext.android.targetSdkVersion
-        versionCode 3
+        versionCode 4
         versionName version
     }
     buildTypes {
@@ -40,6 +40,7 @@ dependencies {
     compile rootProject.ext.dependencies.volley
     compile rootProject.ext.dependencies.fastjson
     compile rootProject.ext.dependencies.rxjava
+    compile rootProject.ext.dependencies.rxandroid
 }
 
 install {

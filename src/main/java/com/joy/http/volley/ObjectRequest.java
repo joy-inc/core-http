@@ -12,12 +12,14 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
+import com.joy.http.JoyError;
 import com.joy.http.JoyHttp;
 import com.joy.http.utils.ParamsUtil;
 
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Collections;
 import java.util.Map;
 
 import rx.Observable;
@@ -172,10 +174,19 @@ public class ObjectRequest<T> extends Request<T> {
         if (isTestMode()) {
             deliverResponse(t);
         } else {
-            if (mObjRespLis != null) {
-                mObjRespLis.onError(getTag(), error);
+            JoyError e = JoyError.empty();
+            if (error != null) {
+                NetworkResponse nr = error.networkResponse;
+                if (nr != null) {
+                    e = new JoyError(nr.statusCode, new String(nr.data));
+                } else {
+                    e = new JoyError(-1, ErrorHelper.getErrorType(error));
+                }
             }
-            mSubject.onError(error);
+            if (mObjRespLis != null) {
+                mObjRespLis.onError(getTag(), e);
+            }
+            mSubject.onError(e);
         }
     }
 
@@ -190,12 +201,13 @@ public class ObjectRequest<T> extends Request<T> {
             e.printStackTrace();
         }
         QyerResponse<T> resp = onResponse(parsed);
-        if (resp.isSuccess()) {
+        if (resp.isSuccess() || resp.isStatusNone()) {
             Entry entry = HttpHeaderParser.parseCacheHeaders(response);
             mObjResp = Response.success(resp.getData(), entry);
             return mObjResp;
         } else {
-            return Response.error(new VolleyError(resp.getMsg()));
+            NetworkResponse nr = new NetworkResponse(resp.getStatus(), resp.getMsg().getBytes(), Collections.emptyMap(), false, 0);
+            return Response.error(new VolleyError(nr));
         }
     }
 
@@ -203,44 +215,56 @@ public class ObjectRequest<T> extends Request<T> {
         if (VolleyLog.DEBUG) {
             VolleyLog.d("~~onResponse # json: %s", json);
         }
-
         QyerResponse<T> resp = new <T>QyerResponse<T>();
-
         if (TextUtils.isEmpty(json)) {
             resp.setParseBrokenStatus();
             return resp;
         }
-
         try {
             JSONObject jsonObj = new JSONObject(json);
-            if (jsonObj.has("status"))
-                resp.setStatus(jsonObj.getInt("status"));
-            if (jsonObj.has("msg"))
-                resp.setMsg(jsonObj.getString("msg"));
-            else if (jsonObj.has("info"))
-                resp.setMsg(jsonObj.getString("info"));
-
-            if (resp.isSuccess()) {
-                json = jsonObj.getString("data");
-                if (TextUtils.isEmpty(json)) {
-                    resp.setData((T) mClazz.newInstance());
-                } else {
-                    if (mClazz.newInstance() instanceof String) {
-                        resp.setData((T) json);
-                    } else {
-                        if (json.startsWith("[")) {// JsonArray
-                            resp.setData(((T) JSON.parseArray(json, mClazz)));
-                        } else {// JsonObj
-                            resp.setData((T) JSON.parseObject(json, mClazz));
-                        }
-                    }
+            if (jsonObj.has(QyerResponse.STATUS)) {
+                resp.setStatus(jsonObj.getInt(QyerResponse.STATUS));
+            } else {
+                resp.setStatusNone();
+            }
+            if (jsonObj.has(QyerResponse.MSG)) {
+                resp.setMsg(jsonObj.getString(QyerResponse.MSG));
+            } else if (jsonObj.has(QyerResponse.INFO)) {
+                resp.setMsg(jsonObj.getString(QyerResponse.INFO));
+            }
+            if (resp.isSuccess() || resp.isStatusNone()) {
+                if (jsonObj.has(QyerResponse.DATA)) {
+                    json = jsonObj.getString(QyerResponse.DATA);
                 }
+                resp.setData(shift(json));
             }
         } catch (Exception e) {
             resp.setParseBrokenStatus();
             e.printStackTrace();
         }
         return resp;
+    }
+
+    private T shift(String json) {
+        T t = null;
+        try {
+            if (TextUtils.isEmpty(json)) {
+                t = (T) mClazz.newInstance();
+            } else {
+                if (mClazz.newInstance() instanceof String) {
+                    t = (T) json;
+                } else {
+                    if (json.startsWith("[")) {// JsonArray
+                        t = ((T) JSON.parseArray(json, mClazz));
+                    } else {// JsonObj
+                        t = (T) JSON.parseObject(json, mClazz);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return t;
     }
 
     @Override
@@ -278,23 +302,7 @@ public class ObjectRequest<T> extends Request<T> {
     }
 
     public void setTestData(String json) {
-        try {
-            if (TextUtils.isEmpty(json)) {
-                t = (T) mClazz.newInstance();
-            } else {
-                if (mClazz.newInstance() instanceof String) {
-                    t = (T) json;
-                } else {
-                    if (json.startsWith("[")) {// JsonArray
-                        t = ((T) JSON.parseArray(json, mClazz));
-                    } else {// JsonObj
-                        t = (T) JSON.parseObject(json, mClazz);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        setTestData(shift(json));
     }
 
     private boolean isTestMode() {

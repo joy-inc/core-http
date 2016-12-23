@@ -7,8 +7,14 @@ package com.joy.http.volley;
  */
 public class QyerResponse<T> {
 
+    public static final String STATUS = "status";
+    public static final String MSG = "msg";
+    public static final String INFO = "info";
+    public static final String DATA = "data";
+
     private static final int STATUS_PARSE_BROKEN = -10000;// 如果status为-10000，表明服务器返回JSON格式有误
     private static final int STATUS_SUCCESS = 1;// 1为正确
+    private static final int STATUS_NONE = -99999;// 没有status字段
 
     /**
      * 1    正确
@@ -22,63 +28,58 @@ public class QyerResponse<T> {
     private T data;// 数据
 
     public QyerResponse() {
-
     }
 
     public void setMsg(String msg) {
-
         if (msg == null) {
-
             msg = "";
         } else {
-
             msg = msg.trim();
         }
         this.msg = msg;
     }
 
     public String getMsg() {
-
         return msg;
     }
 
     public void setStatus(int status) {
-
         this.status = status;
     }
 
     public void setParseBrokenStatus() {
-
         this.status = STATUS_PARSE_BROKEN;
     }
 
     public int getStatus() {
-
         return status;
     }
 
     public void setData(T data) {
-
         this.data = data;
     }
 
     public T getData() {
-
         return data;
     }
 
     public boolean isSuccess() {
-
         return this.status == STATUS_SUCCESS;
     }
 
     public boolean isFailed() {
-
         return this.status != STATUS_SUCCESS;
     }
 
     public boolean isParseBroken() {
-
         return this.status == STATUS_PARSE_BROKEN;
+    }
+
+    public boolean isStatusNone() {
+        return this.status == STATUS_NONE;
+    }
+
+    public void setStatusNone() {
+        this.status = STATUS_NONE;
     }
 }

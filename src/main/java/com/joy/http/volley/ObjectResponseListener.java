@@ -1,6 +1,6 @@
 package com.joy.http.volley;
 
-import com.android.volley.VolleyError;
+import com.joy.http.JoyError;
 
 /**
  * Created by KEVIN.DAI on 15/11/8.
@@ -9,5 +9,5 @@ public interface ObjectResponseListener<T> {
 
     void onSuccess(Object tag, T t);
 
-    void onError(Object tag, VolleyError error);
+    void onError(Object tag, JoyError error);
 }

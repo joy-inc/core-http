@@ -8,8 +8,9 @@ import java.util.Map;
 public class ParamsUtil {
 
     public static String createUrl(Map<String, String> params) {
-        if (params == null || params.isEmpty())
+        if (params == null || params.isEmpty()) {
             return "";
+        }
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> entry : params.entrySet()) {
             sb.append(entry.getKey());

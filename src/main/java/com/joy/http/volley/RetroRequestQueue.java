@@ -22,7 +22,6 @@ import static com.joy.http.volley.RequestMode.REFRESH_ONLY;
 public final class RetroRequestQueue extends RequestQueue {
 
     RetroRequestQueue(Cache cache, Network network) {
-
         super(cache, network);
     }
 
@@ -30,12 +29,10 @@ public final class RetroRequestQueue extends RequestQueue {
      * fetch net-->response.
      */
     public <T> Observable<T> launchRefreshOnly(ObjectRequest<T> request) {
-
         return launch(request, REFRESH_ONLY);
     }
 
     public <T> Observable<T> launchRefreshOnly(ObjectRequest<T> request, Object tag) {
-
         return launch(request, REFRESH_ONLY, tag);
     }
 
@@ -43,12 +40,10 @@ public final class RetroRequestQueue extends RequestQueue {
      * fetch cache-->response.
      */
     public <T> Observable<T> launchCacheOnly(ObjectRequest<T> request) {
-
         return launch(request, CACHE_ONLY);
     }
 
     public <T> Observable<T> launchCacheOnly(ObjectRequest<T> request, Object tag) {
-
         return launch(request, CACHE_ONLY, tag);
     }
 
@@ -56,12 +51,10 @@ public final class RetroRequestQueue extends RequestQueue {
      * cache expired: fetch net, update cache-->response.
      */
     public <T> Observable<T> launchRefreshAndCache(ObjectRequest<T> request) {
-
         return launch(request, REFRESH_AND_CACHE);
     }
 
     public <T> Observable<T> launchRefreshAndCache(ObjectRequest<T> request, Object tag) {
-
         return launch(request, REFRESH_AND_CACHE, tag);
     }
 
@@ -69,39 +62,32 @@ public final class RetroRequestQueue extends RequestQueue {
      * cache update needed: fetch cache-->response, fetch net, update cache-->response.
      */
     public <T> Observable<T> launchCacheAndRefresh(ObjectRequest<T> request) {
-
         return launch(request, CACHE_AND_REFRESH);
     }
 
     public <T> Observable<T> launchCacheAndRefresh(ObjectRequest<T> request, Object tag) {
-
         return launch(request, CACHE_AND_REFRESH, tag);
     }
 
     public <T> Observable<T> launch(ObjectRequest<T> request, RequestMode mode) {
-
         return launch(request, mode, request.getIdentifier());
     }
 
     public <T> Observable<T> launch(ObjectRequest<T> request, RequestMode mode, Object tag) {
-
         request.setTag(tag);
         request.setRequestMode(mode);
         return addRequest(request);
     }
 
     <T> Observable<T> addRequest(Request<T> request) {
-
         return ((ObjectRequest<T>) super.add(request)).observable();
     }
 
     public void cancelLaunch(Object tag) {
-
         cancelAll(tag);
     }
 
     public void cancelAllLauncher() {
-
         cancelAll(request -> true);
     }
 }
