@@ -1,4 +1,4 @@
-src/main/java/com/joy/http/qyer/QyerRequest.java package com.joy.http.samples;
+package com.joy.http.samples;
 
 import com.joy.http.JoyError;
 import com.joy.http.JoyErrorAction;
