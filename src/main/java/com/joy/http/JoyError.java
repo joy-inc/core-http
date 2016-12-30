@@ -6,6 +6,7 @@ package com.joy.http;
 
 public class JoyError extends Throwable {
 
+    public static final int STATUS_NONE = -1;
     private int statusCode;
 
     public JoyError(int statusCode, String message) {
@@ -14,7 +15,7 @@ public class JoyError extends Throwable {
     }
 
     public static JoyError empty() {
-        return new JoyError(-1, "");
+        return new JoyError(STATUS_NONE, "");
     }
 
     public JoyError(String message) {

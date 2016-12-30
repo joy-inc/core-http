@@ -1,4 +1,4 @@
-package com.joy.http.volley;
+package com.joy.http;
 
 /**
  * Created by KEVIN.DAI on 15/11/29.

@@ -4,13 +4,14 @@ import com.android.volley.Cache;
 import com.android.volley.Network;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.joy.http.RequestMode;
 
 import rx.Observable;
 
-import static com.joy.http.volley.RequestMode.CACHE_AND_REFRESH;
-import static com.joy.http.volley.RequestMode.CACHE_ONLY;
-import static com.joy.http.volley.RequestMode.REFRESH_AND_CACHE;
-import static com.joy.http.volley.RequestMode.REFRESH_ONLY;
+import static com.joy.http.RequestMode.CACHE_AND_REFRESH;
+import static com.joy.http.RequestMode.CACHE_ONLY;
+import static com.joy.http.RequestMode.REFRESH_AND_CACHE;
+import static com.joy.http.RequestMode.REFRESH_ONLY;
 
 //import javax.inject.Singleton;
 
@@ -83,7 +84,7 @@ public final class RetroRequestQueue extends RequestQueue {
         return ((ObjectRequest<T>) super.add(request)).observable();
     }
 
-    public void cancelLaunch(Object tag) {
+    public void cancelLauncher(Object tag) {
         cancelAll(tag);
     }
 

@@ -1,11 +1,9 @@
-package com.joy.http.volley;
-
-import com.joy.http.JoyError;
+package com.joy.http;
 
 /**
  * Created by KEVIN.DAI on 15/11/8.
  */
-public interface ObjectResponseListener<T> {
+public interface ResponseListener<T> {
 
     void onSuccess(Object tag, T t);
 

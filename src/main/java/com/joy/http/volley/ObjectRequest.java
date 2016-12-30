@@ -14,12 +14,11 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.joy.http.JoyError;
 import com.joy.http.JoyHttp;
+import com.joy.http.RequestMode;
+import com.joy.http.ResponseListener;
 import com.joy.http.utils.ParamsUtil;
 
-import org.json.JSONObject;
-
 import java.io.UnsupportedEncodingException;
-import java.util.Collections;
 import java.util.Map;
 
 import rx.Observable;
@@ -28,7 +27,7 @@ import rx.subjects.SerializedSubject;
 
 import static com.android.volley.DefaultRetryPolicy.DEFAULT_BACKOFF_MULT;
 import static com.android.volley.DefaultRetryPolicy.DEFAULT_MAX_RETRIES;
-import static com.joy.http.volley.RequestMode.REFRESH_ONLY;
+import static com.joy.http.RequestMode.REFRESH_ONLY;
 
 /**
  * Created by KEVIN.DAI on 15/7/10.
@@ -40,13 +39,12 @@ public class ObjectRequest<T> extends Request<T> {
      */
     private static final int DEFAULT_TIMEOUT_MS = 10 * 1000;
     private Class mClazz;
-    private ObjectResponseListener<T> mObjRespLis;
+    private ResponseListener<T> mObjRespLis;
     private Map<String, String> mHeaders, mParams;
     private RequestMode mReqMode = RequestMode.REFRESH_ONLY;
     private boolean mHasCache;
-    private Response<T> mObjResp;
+    protected Response<T> mObjResp;
     private String mCacheKey;
-
     private SerializedSubject<T, T> mSubject;
 
     /**
@@ -56,7 +54,7 @@ public class ObjectRequest<T> extends Request<T> {
      * @param url    URL to fetch the Object
      * @param clazz  the Object class to return
      */
-    private ObjectRequest(int method, String url, Class clazz) {
+    protected ObjectRequest(int method, String url, Class clazz) {
         super(method, url, null);
         mClazz = clazz;
         mHasCache = JoyHttp.getVolleyCache().get(getCacheKey()) != null;
@@ -80,8 +78,9 @@ public class ObjectRequest<T> extends Request<T> {
 
     private void removeEntryListener() {
         RetroCache cache = (RetroCache) JoyHttp.getVolleyCache();
-        if (cache != null)
+        if (cache != null) {
             cache.removeEntryListener(mOnEntryListener);
+        }
     }
 
     private RetroCache.OnEntryListener mOnEntryListener = entry -> {
@@ -96,7 +95,7 @@ public class ObjectRequest<T> extends Request<T> {
      * @param url   URL to fetch the Object
      * @param clazz the Object class to return
      */
-    static <T> ObjectRequest<T> get(String url, Class clazz) {
+    public static <T> ObjectRequest<T> get(String url, Class clazz) {
         return new <T>ObjectRequest<T>(Method.GET, url, clazz);
     }
 
@@ -106,15 +105,15 @@ public class ObjectRequest<T> extends Request<T> {
      * @param url   URL to fetch the Object
      * @param clazz the Object class to return
      */
-    static <T> ObjectRequest<T> post(String url, Class clazz) {
+    public static <T> ObjectRequest<T> post(String url, Class clazz) {
         return new <T>ObjectRequest<T>(Method.POST, url, clazz);
     }
 
-    void setHeaders(Map<String, String> headers) {
+    public void setHeaders(Map<String, String> headers) {
         mHeaders = headers;
     }
 
-    void setParams(Map<String, String> params) {
+    public void setParams(Map<String, String> params) {
         mParams = params;
     }
 
@@ -157,7 +156,7 @@ public class ObjectRequest<T> extends Request<T> {
     /**
      * @param lisn Listener to receive the Object response
      */
-    public void setResponseListener(ObjectResponseListener<T> lisn) {
+    public void setResponseListener(ResponseListener<T> lisn) {
         mObjRespLis = lisn;
     }
 
@@ -180,7 +179,7 @@ public class ObjectRequest<T> extends Request<T> {
                 if (nr != null) {
                     e = new JoyError(nr.statusCode, new String(nr.data));
                 } else {
-                    e = new JoyError(-1, ErrorHelper.getErrorType(error));
+                    e = new JoyError(JoyError.STATUS_NONE, ErrorHelper.getErrorType(error));
                 }
             }
             if (mObjRespLis != null) {
@@ -192,6 +191,12 @@ public class ObjectRequest<T> extends Request<T> {
 
     @Override
     public Response<T> parseNetworkResponse(NetworkResponse response) {
+        String parsed = parseJsonResponse(response);
+        Entry entry = HttpHeaderParser.parseCacheHeaders(response);
+        return mObjResp = Response.success(shift(parsed), entry);
+    }
+
+    protected String parseJsonResponse(NetworkResponse response) {
         String parsed;
         try {
             String charsetName = HttpHeaderParser.parseCharset(response.headers);
@@ -200,52 +205,10 @@ public class ObjectRequest<T> extends Request<T> {
             parsed = new String(response.data);
             e.printStackTrace();
         }
-        QyerResponse<T> resp = onResponse(parsed);
-        if (resp.isSuccess() || resp.isStatusNone()) {
-            Entry entry = HttpHeaderParser.parseCacheHeaders(response);
-            mObjResp = Response.success(resp.getData(), entry);
-            return mObjResp;
-        } else {
-            NetworkResponse nr = new NetworkResponse(resp.getStatus(), resp.getMsg().getBytes(), Collections.emptyMap(), false, 0);
-            return Response.error(new VolleyError(nr));
-        }
+        return parsed;
     }
 
-    private QyerResponse<T> onResponse(String json) {
-        if (VolleyLog.DEBUG) {
-            VolleyLog.d("~~onResponse # json: %s", json);
-        }
-        QyerResponse<T> resp = new <T>QyerResponse<T>();
-        if (TextUtils.isEmpty(json)) {
-            resp.setParseBrokenStatus();
-            return resp;
-        }
-        try {
-            JSONObject jsonObj = new JSONObject(json);
-            if (jsonObj.has(QyerResponse.STATUS)) {
-                resp.setStatus(jsonObj.getInt(QyerResponse.STATUS));
-            } else {
-                resp.setStatusNone();
-            }
-            if (jsonObj.has(QyerResponse.MSG)) {
-                resp.setMsg(jsonObj.getString(QyerResponse.MSG));
-            } else if (jsonObj.has(QyerResponse.INFO)) {
-                resp.setMsg(jsonObj.getString(QyerResponse.INFO));
-            }
-            if (resp.isSuccess() || resp.isStatusNone()) {
-                if (jsonObj.has(QyerResponse.DATA)) {
-                    json = jsonObj.getString(QyerResponse.DATA);
-                }
-                resp.setData(shift(json));
-            }
-        } catch (Exception e) {
-            resp.setParseBrokenStatus();
-            e.printStackTrace();
-        }
-        return resp;
-    }
-
-    private T shift(String json) {
+    protected T shift(String json) {
         T t = null;
         try {
             if (TextUtils.isEmpty(json)) {

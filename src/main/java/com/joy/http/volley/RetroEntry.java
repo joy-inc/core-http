@@ -1,6 +1,7 @@
 package com.joy.http.volley;
 
 import com.android.volley.Cache;
+import com.joy.http.RequestMode;
 
 /**
  * fetch cache only default.

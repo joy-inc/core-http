@@ -1,6 +1,7 @@
-package com.joy.http.volley;
+package com.joy.http;
 
 import com.joy.http.utils.ParamsUtil;
+import com.joy.http.volley.ObjectRequest;
 
 import java.util.Map;
 
@@ -50,17 +51,17 @@ public class ReqFactory {
         return req;
     }
 
-    private static void checkParamsIsValid(Map<String, String>... params) {
+    public static void checkParamsIsValid(Map<String, String>... params) {
         if (params != null && params.length > 2) {
             throw new IllegalArgumentException("可变参数params的length不能大于2");
         }
     }
 
-    private static boolean isParamsSingle(Map<String, String>... params) {
+    public static boolean isParamsSingle(Map<String, String>... params) {
         return params != null && params.length == 1;
     }
 
-    private static boolean isParamsDouble(Map<String, String>... params) {
+    public static boolean isParamsDouble(Map<String, String>... params) {
         return params != null && params.length == 2;
     }
 }

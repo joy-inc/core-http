@@ -1,11 +1,11 @@
-package com.joy.http.samples;
+src/main/java/com/joy/http/qyer/QyerRequest.java package com.joy.http.samples;
 
 import com.joy.http.JoyError;
 import com.joy.http.JoyErrorAction;
 import com.joy.http.JoyHttp;
+import com.joy.http.ReqFactory;
+import com.joy.http.ResponseListener;
 import com.joy.http.volley.ObjectRequest;
-import com.joy.http.volley.ObjectResponseListener;
-import com.joy.http.volley.ReqFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,11 +14,17 @@ import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
+//import retrofit2.Retrofit;
+
 /**
  * Created by Daisw on 16/9/13.
  */
 
 public class Sample {
+
+    public static void testRetrofit() {
+//        Retrofit retrofit = new Retrofit.Builder().build();
+    }
 
     /**
      * 测试数据
@@ -32,7 +38,7 @@ public class Sample {
         String json = "{\"id\": 2, \"name\": \"Daisw\"}";
         objReq.setTestData(json);// for test
 
-        objReq.setResponseListener(new ObjectResponseListener<User>() {
+        objReq.setResponseListener(new ResponseListener<User>() {
             @Override
             public void onSuccess(Object tag, User user) {
                 System.out.println("~~onSuccess user: " + user);
@@ -51,7 +57,7 @@ public class Sample {
      */
     public static void launchNormal1() {
         ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
-        objReq.setResponseListener(new ObjectResponseListener<User>() {
+        objReq.setResponseListener(new ResponseListener<User>() {
             @Override
             public void onSuccess(Object tag, User user) {
             }
@@ -72,7 +78,7 @@ public class Sample {
         params.put("count", "20");
 
         ObjectRequest<User> objReq = ReqFactory.newGet("http://open.qyer.com", User.class, params);
-        objReq.setResponseListener(new ObjectResponseListener<User>() {
+        objReq.setResponseListener(new ResponseListener<User>() {
             @Override
             public void onSuccess(Object tag, User user) {
             }
@@ -97,7 +103,7 @@ public class Sample {
         headers.put("user-token", "user_token");
 
         ObjectRequest<User> objReq = ReqFactory.newGet("http://open.qyer.com", User.class, params, headers);
-        objReq.setResponseListener(new ObjectResponseListener<User>() {
+        objReq.setResponseListener(new ResponseListener<User>() {
             @Override
             public void onSuccess(Object tag, User user) {
             }
@@ -111,7 +117,7 @@ public class Sample {
 
     public static void launchNormal4() {
         ObjectRequest<User> objReq = ReqFactory.newGet("api", User.class);
-        objReq.setResponseListener(new ObjectResponseListener<User>() {
+        objReq.setResponseListener(new ResponseListener<User>() {
             @Override
             public void onSuccess(Object tag, User user) {
             }
