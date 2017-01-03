@@ -18,7 +18,7 @@ public class ReqFactory {
      * @param <T>
      * @return
      */
-    public static <T> ObjectRequest<T> newGet(String baseUrl, Class clazz, Map<String, String>... params) {
+    public static <T> ObjectRequest<T> newGet(String baseUrl, Class<?> clazz, Map<String, String>... params) {
         checkParamsIsValid(params);
         StringBuilder sb = new StringBuilder(baseUrl);
         if (isParamsSingle(params)) {
@@ -39,7 +39,7 @@ public class ReqFactory {
      * @param <T>
      * @return
      */
-    public static <T> ObjectRequest<T> newPost(String baseUrl, Class clazz, Map<String, String>... params) {
+    public static <T> ObjectRequest<T> newPost(String baseUrl, Class<?> clazz, Map<String, String>... params) {
         checkParamsIsValid(params);
         ObjectRequest<T> req = ObjectRequest.post(baseUrl, clazz);
         if (isParamsSingle(params)) {

@@ -42,7 +42,7 @@ public class QyerReqFactory {
      * @param <T>
      * @return
      */
-    public static <T> QyerRequest<T> newGet(String baseUrl, Class<T> clazz, Map<String, String>... params) {
+    public static <T> QyerRequest<T> newGet(String baseUrl, Class<?> clazz, Map<String, String>... params) {
         ReqFactory.checkParamsIsValid(params);
         StringBuilder sb = new StringBuilder(baseUrl);
         if (ReqFactory.isParamsSingle(params)) {
@@ -63,7 +63,7 @@ public class QyerReqFactory {
      * @param <T>
      * @return
      */
-    public static <T> QyerRequest<T> newPost(String baseUrl, Class clazz, Map<String, String>... params) {
+    public static <T> QyerRequest<T> newPost(String baseUrl, Class<?> clazz, Map<String, String>... params) {
         ReqFactory.checkParamsIsValid(params);
         QyerRequest<T> req = QyerRequest.post(baseUrl, clazz);
         if (ReqFactory.isParamsSingle(params)) {
