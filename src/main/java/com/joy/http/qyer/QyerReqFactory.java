@@ -21,6 +21,13 @@ public class QyerReqFactory {
         return mDefaultParams;
     }
 
+    public static void clearDefaultParams() {
+        if (mDefaultParams != null) {
+            mDefaultParams.clear();
+            mDefaultParams = null;
+        }
+    }
+
     public static Map<String, String> generateParams(Map<String, String> params) {
         if (mDefaultParams != null) {
             params.putAll(mDefaultParams);

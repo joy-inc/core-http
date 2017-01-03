@@ -15,20 +15,18 @@ import java.util.Map;
  */
 public class JoyHttp {
 
-    private static volatile JoyHttp mJoyHttp;
-    private RetroRequestQueue mReqQueue;
+    private static volatile RetroRequestQueue mReqQueue;
 
-    private JoyHttp(Context appContext, boolean debug) {
-        VolleyLog.DEBUG = debug;
-        mReqQueue = RetroVolley.newRequestQueue(appContext);
-//        mReqQueue.addRequestFinishedListener(mReqFinishLis);
+    private JoyHttp() {
     }
 
     public static void initialize(Context appContext, boolean debug) {
-        if (mJoyHttp == null) {
+        if (mReqQueue == null) {
             synchronized (JoyHttp.class) {
-                if (mJoyHttp == null) {
-                    mJoyHttp = new JoyHttp(appContext, debug);
+                if (mReqQueue == null) {
+                    VolleyLog.DEBUG = debug;
+                    mReqQueue = RetroVolley.newRequestQueue(appContext);
+//                    mReqQueue.addRequestFinishedListener(mReqFinishLis);
                 }
             }
         }
@@ -40,24 +38,21 @@ public class JoyHttp {
     }
 
     public static void shutDown() {
-        if (mJoyHttp != null && mJoyHttp.mReqQueue != null) {
+        if (mReqQueue != null) {
 //            mReqQueue.removeRequestFinishedListener(mReqFinishLis);
-            mJoyHttp.mReqQueue.cancelAll(request -> true);
-            mJoyHttp.mReqQueue.stop();
-            mJoyHttp.mReqQueue = null;
+            mReqQueue.cancelAll(request -> true);
+            mReqQueue.stop();
+            mReqQueue = null;
         }
-        mJoyHttp = null;
+        QyerReqFactory.clearDefaultParams();
     }
 
     public static RetroRequestQueue getLauncher() {
-        return mJoyHttp == null ? null : mJoyHttp.mReqQueue;
+        return mReqQueue;
     }
 
     public static Cache getVolleyCache() {
-        if (mJoyHttp == null) {
-            return null;
-        }
-        return mJoyHttp.mReqQueue == null ? null : mJoyHttp.mReqQueue.getCache();
+        return mReqQueue == null ? null : mReqQueue.getCache();
     }
 
 //    private static RequestQueue.RequestFinishedListener mReqFinishLis = request -> {
