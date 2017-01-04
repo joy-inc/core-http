@@ -1,28 +1,37 @@
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda'
-apply plugin: "com.github.dcendents.android-maven"
-apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'maven-publish'
 
 ext {
-    siteUrl = 'https://github.com/joy-inc/core-http'// 项目的主页
-    gitUrl = 'git@github.com:joy-inc/core-http.git'// Git仓库的url
+    publishedGroupId = 'com.qyer.library'
+    libraryName = 'QYHttp'
+    artifact = 'QYHttp'
 
-    libraryDescription = 'core-http'// 项目描述
-    libraryName = "core-http"// 发布到JCenter上的项目名字
+    libraryDescription = 'Android Library to provide app new version check and update'
+    libraryVersion = '0.0.4'
+
+    siteUrl = 'http://git.2b6.me/Android/QYHttp'
+    gitUrl = 'git@git.2b6.me:Android/QYHttp.git'
+
+    developerId = 'daishiwen'
+    developerName = 'daishiwen'
+    developerEmail = 'daishiwen1212@gmail.com'
+    developerOrganization = 'QYER Inc'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
 }
 
-version = "0.0.5"// This is the library version used when deploying the artifact
-group = "com.joy.support"// Maven Group ID for the artifact，一般填你唯一的包名
-
 android {
-    compileSdkVersion rootProject.ext.android.compileSdkVersion
-    buildToolsVersion rootProject.ext.android.buildToolsVersion
+    compileSdkVersion 24
+    buildToolsVersion '24.0.2'
 
     defaultConfig {
-        minSdkVersion 12
-        targetSdkVersion rootProject.ext.android.targetSdkVersion
-        versionCode 5
-        versionName version
+        minSdkVersion 8
+        targetSdkVersion 24
+        versionCode 4
+        versionName '0.0.4'
     }
     buildTypes {
         release {
@@ -30,9 +39,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+}
+
+sourceSets {
+    main {
+        java.srcDirs = ['src/main/java']
     }
 }
 
@@ -41,70 +52,66 @@ dependencies {
     compile rootProject.ext.dependencies.fastjson
     compile rootProject.ext.dependencies.rxjava
     compile rootProject.ext.dependencies.rxandroid
-//    compile 'com.squareup.okhttp3:okhttp:3.5.0'
-//    compile 'com.squareup.retrofit2:retrofit:2.1.0'
 }
 
-install {
-    repositories.mavenInstaller {
-        // This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'aar'
-                // Add your description here
-                name libraryDescription
-                url siteUrl
-                // Set your license
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'daishiwen'// 填写的一些基本信息
-                        name 'daishiwen'
-                        email 'daishiwen1212@gmail.com'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier 'sources'
+}
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+            groupId publishedGroupId
+            version libraryVersion
+            artifactId project.getName()
+            artifact "$buildDir/outputs/aar/${project.getName()}-release.aar"
+            artifact "$buildDir/intermediates/bundles/release/classes.jar"
+            artifact sourceJar
+//            artifact source: sourceJar, classifier: 'src', extension: 'zip'
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', libraryDescription)
+
+                def license = root.appendNode('licenses').appendNode('license')
+                license.appendNode('name', licenseName)
+                license.appendNode('url', licenseUrl)
+                license.appendNode('distribution', 'repo')
+
+                def developer = root.appendNode('developers').appendNode('developer')
+                developer.appendNode('id', developerId)
+                developer.appendNode('name', developerName)
+                developer.appendNode('email', developerEmail)
+                developer.appendNode('organization', developerOrganization)
+
+                def dependenciesNode = root.appendNode('dependencies')
+                configurations.compile.allDependencies.each {
+                    def dependencyNode = dependenciesNode.appendNode('dependency')
+                    dependencyNode.appendNode('groupId', it.group)
+                    dependencyNode.appendNode('artifactId', it.name)
+                    dependencyNode.appendNode('version', it.version)
                 }
             }
         }
     }
 }
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-artifacts {
-//    archives javadocJar // 暂不生成javadoc文件
-    archives sourcesJar
-}
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-    configurations = ['archives']
-    pkg {
-        repo = "joy-library"
-        name = libraryName
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
-        publish = true
+
+artifactory {
+    contextUrl = 'http://172.1.1.227:9999/artifactory'
+    publish {
+        repository {
+            repoKey = libraryVersion.endsWith('-SNAPSHOT') ? 'qyer-snapshot' : 'qyer-release'
+            username = 'deployer'
+            password = 'Dep10yeR'
+        }
+
+        defaults {
+            publications('aar')
+            publishArtifacts = true
+
+            properties = ['qa.level': 'basic', 'dev.team': 'core']
+            publishPom = true
+        }
     }
 }
