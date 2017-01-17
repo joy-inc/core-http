@@ -12,15 +12,13 @@ import com.joy.http.volley.ObjectRequest;
 
 import org.json.JSONObject;
 
-import java.util.Collections;
-
 /**
  * Created by Daisw on 2016/12/29.
  */
 
 public class QyerRequest<T> extends ObjectRequest<T> {
 
-    protected QyerRequest(int method, String url, Class clazz) {
+    protected QyerRequest(int method, String url, Class<?> clazz) {
         super(method, url, clazz);
     }
 
@@ -30,8 +28,8 @@ public class QyerRequest<T> extends ObjectRequest<T> {
      * @param url   URL to fetch the Object
      * @param clazz the Object class to return
      */
-    public static <T> QyerRequest<T> get(String url, Class clazz) {
-        return new <T>QyerRequest<T>(Method.GET, url, clazz);
+    public static <T> QyerRequest<T> get(String url, Class<?> clazz) {
+        return new QyerRequest(Method.GET, url, clazz);
     }
 
     /**
@@ -40,19 +38,19 @@ public class QyerRequest<T> extends ObjectRequest<T> {
      * @param url   URL to fetch the Object
      * @param clazz the Object class to return
      */
-    public static <T> QyerRequest<T> post(String url, Class clazz) {
-        return new <T>QyerRequest<T>(Method.POST, url, clazz);
+    public static <T> QyerRequest<T> post(String url, Class<?> clazz) {
+        return new QyerRequest(Method.POST, url, clazz);
     }
 
     @Override
     public Response<T> parseNetworkResponse(NetworkResponse response) {
         String parsed = parseJsonResponse(response);
-        QyerResponse<T> resp = onResponse(parsed);
-        if (resp.isSuccess() || resp.isStatusNone()) {
+        QyerResponse<T> qyerResp = onResponse(parsed);
+        if (qyerResp.isSuccess()) {
             Cache.Entry entry = HttpHeaderParser.parseCacheHeaders(response);
-            return mObjResp = Response.success(resp.getData(), entry);
+            return mResponse = Response.success(qyerResp.getData(), entry);
         } else {
-            NetworkResponse nr = new NetworkResponse(resp.getStatus(), resp.getMsg().getBytes(), Collections.emptyMap(), false, 0);
+            NetworkResponse nr = new NetworkResponse(qyerResp.getStatus(), qyerResp.getMsg().getBytes(), response.headers, response.notModified, response.networkTimeMs);
             return Response.error(new VolleyError(nr));
         }
     }
@@ -61,31 +59,27 @@ public class QyerRequest<T> extends ObjectRequest<T> {
         if (VolleyLog.DEBUG) {
             VolleyLog.d("~~onResponse # json: %s", json);
         }
-        QyerResponse<T> resp = new <T>QyerResponse<T>();
+        QyerResponse<T> resp = new QyerResponse();
         if (TextUtils.isEmpty(json)) {
-            resp.setParseBrokenStatus();
             return resp;
         }
         try {
             JSONObject jsonObj = new JSONObject(json);
             if (jsonObj.has(QyerResponse.STATUS)) {
                 resp.setStatus(jsonObj.getInt(QyerResponse.STATUS));
-            } else {
-                resp.setStatusNone();
             }
             if (jsonObj.has(QyerResponse.MSG)) {
                 resp.setMsg(jsonObj.getString(QyerResponse.MSG));
             } else if (jsonObj.has(QyerResponse.INFO)) {
                 resp.setMsg(jsonObj.getString(QyerResponse.INFO));
             }
-            if (resp.isSuccess() || resp.isStatusNone()) {
+            if (resp.isSuccess()) {
                 if (jsonObj.has(QyerResponse.DATA)) {
                     json = jsonObj.getString(QyerResponse.DATA);
                 }
                 resp.setData(shift(json));
             }
         } catch (Exception e) {
-            resp.setParseBrokenStatus();
             e.printStackTrace();
         }
         return resp;

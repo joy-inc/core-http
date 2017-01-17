@@ -1,5 +1,6 @@
 package com.joy.http.volley;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.android.volley.AuthFailureError;
@@ -9,6 +10,8 @@ import com.android.volley.ParseError;
 import com.android.volley.RedirectError;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
+import com.joy.http.JoyHttp;
+import com.joy.http.R;
 
 /**
  * Created by KEVIN.DAI on 15/11/7.
@@ -32,20 +35,21 @@ public class ErrorHelper {
         if (error == null) {
             return errorMsg;
         }
+        Context appContext = JoyHttp.getContext();
         if (error instanceof TimeoutError) {
-            errorMsg = "Server Timeout";
+            errorMsg = appContext != null ? appContext.getString(R.string.generic_server_timeout) : "Server Timeout";
         } else if (error instanceof ServerError) {
-            errorMsg = "Server down";
+            errorMsg = appContext != null ? appContext.getString(R.string.generic_server_down) : "Server down";
         } else if (error instanceof AuthFailureError) {
-            errorMsg = "Authentication Failure";
+            errorMsg = appContext != null ? appContext.getString(R.string.auth_failed) : "Authentication Failure";
         } else if (error instanceof NetworkError) {
-            errorMsg = "No internet";
+            errorMsg = appContext != null ? appContext.getString(R.string.no_internet) : "No internet";
         } else if (error instanceof NoConnectionError) {
-            errorMsg = "No network connection found";
+            errorMsg = appContext != null ? appContext.getString(R.string.no_network_connection) : "No network connection found";
         } else if (error instanceof ParseError) {
-            errorMsg = "Parsing Failure";
+            errorMsg = appContext != null ? appContext.getString(R.string.parsing_failed) : "Parsing Failure";
         } else if (error instanceof RedirectError) {
-            errorMsg = "Redirect Error";
+            errorMsg = appContext != null ? appContext.getString(R.string.redirect_error) : "Redirect Error";
         }
         return TextUtils.isEmpty(errorMsg) ? error.getMessage() : errorMsg;
     }

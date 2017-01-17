@@ -1,5 +1,7 @@
 package com.joy.http.qyer;
 
+import com.joy.http.JoyError;
+
 /**
  * Created by KEVIN.DAI on 15/7/16.
  *
@@ -7,14 +9,11 @@ package com.joy.http.qyer;
  */
 public class QyerResponse<T> {
 
+    public static final int STATUS_SUCCESS = 1;// 1为正确
     public static final String STATUS = "status";
     public static final String MSG = "msg";
     public static final String INFO = "info";
     public static final String DATA = "data";
-
-    private static final int STATUS_PARSE_BROKEN = -10000;// 如果status为-10000，表明服务器返回JSON格式有误
-    private static final int STATUS_SUCCESS = 1;// 1为正确
-    private static final int STATUS_NONE = -99999;// 没有status字段
 
     /**
      * 1    正确
@@ -23,7 +22,7 @@ public class QyerResponse<T> {
      * -11	TOKEN过期
      * -12	用户未登录
      */
-    private int status;// 错误状态
+    private int status = JoyError.STATUS_NONE;// 错误状态
     private String msg = "";// 提示信息
     private T data;// 数据
 
@@ -47,10 +46,6 @@ public class QyerResponse<T> {
         this.status = status;
     }
 
-    public void setParseBrokenStatus() {
-        this.status = STATUS_PARSE_BROKEN;
-    }
-
     public int getStatus() {
         return status;
     }
@@ -69,17 +64,5 @@ public class QyerResponse<T> {
 
     public boolean isFailed() {
         return this.status != STATUS_SUCCESS;
-    }
-
-    public boolean isParseBroken() {
-        return this.status == STATUS_PARSE_BROKEN;
-    }
-
-    public boolean isStatusNone() {
-        return this.status == STATUS_NONE;
-    }
-
-    public void setStatusNone() {
-        this.status = STATUS_NONE;
     }
 }

@@ -1,11 +1,12 @@
 <resources>
 
     <!-- volley -->
-    <string name="no_network_connection" translatable="false">No network connection found</string>
-    <string name="generic_server_down" translatable="false">Server down</string>
-    <string name="generic_server_timeout" translatable="false">Server Timeout</string>
-    <string name="generic_error" translatable="false">No internet</string>
-    <string name="no_internet" translatable="false">No internet</string>
-    <string name="parsing_failed" translatable="false">Parsing Failure</string>
-    <string name="auth_failed" translatable="false">Authentication Failure</string>
+    <string name="no_network_connection">无网络连接，请检查你的网络设置</string>
+    <string name="generic_server_down">网络连接失败，请重试&#8230;</string>
+    <string name="generic_server_timeout">网络连接超时</string>
+    <string name="generic_error">无网络连接，请检查你的网络设置</string>
+    <string name="no_internet">无网络连接，请检查你的网络设置</string>
+    <string name="parsing_failed">解析数据失败</string>
+    <string name="auth_failed">认证失败</string>
+    <string name="redirect_error">重定向失败</string>
 </resources>

@@ -25,4 +25,12 @@ public class JoyError extends Throwable {
     public int getStatusCode() {
         return this.statusCode;
     }
+
+    public boolean isStatusNone() {
+        return statusCode == STATUS_NONE;
+    }
+
+    public boolean isStatusValid() {
+        return !isStatusNone();
+    }
 }

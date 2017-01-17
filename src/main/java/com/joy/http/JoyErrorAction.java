@@ -6,14 +6,15 @@ import rx.functions.Action1;
  * Created by Daisw on 2016/12/22.
  */
 
-public abstract class JoyErrorAction implements Action1<Throwable> {
+public class JoyErrorAction implements Action1<Throwable> {
 
     @Override
-    public final void call(Throwable t) {
+    public void call(Throwable t) {
         if (t instanceof JoyError) {
             call((JoyError) t);
         }
     }
 
-    public abstract void call(JoyError error);
+    public void call(JoyError error) {
+    }
 }

@@ -7,5 +7,5 @@ public interface ResponseListener<T> {
 
     void onSuccess(Object tag, T t);
 
-    void onError(Object tag, JoyError error);
+    void onError(Object tag, Throwable error);
 }
