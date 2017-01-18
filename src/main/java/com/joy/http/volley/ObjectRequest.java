@@ -188,21 +188,20 @@ public class ObjectRequest<T> extends Request<T> {
         } else {
             Throwable e;
             if (error != null) {
-                e = new Throwable(ErrorHelper.getErrorType(error));
-                NetworkResponse nr = error.networkResponse;
+                final NetworkResponse nr = error.networkResponse;
+                final int statusCode = nr != null ? nr.statusCode : JoyError.STATUS_NONE;
+                String errorMsg = ErrorHelper.getErrorType(error);// 过滤error的类型，返回相应的提示，如未被命中则返回空串。
+                e = TextUtils.isEmpty(errorMsg) ? error : new JoyError(JoyError.TYPE_HTTP, statusCode, errorMsg);
                 if (nr != null) {
-                    if (nr.statusCode == 404) {
-                        e = new Throwable("404 Not Found");
-                    } else {
-                        Map<String, String> headers = nr.headers;
-                        String contentType = headers == null ? null : headers.get("Content-Type");
-                        if (contentType != null && contentType.contains("application/json")) {
-                            e = new JoyError(nr.statusCode, nr.data == null ? "" : new String(nr.data));
-                        }
+                    Map<String, String> headers = nr.headers;
+                    String contentType = headers == null ? null : headers.get("Content-Type");
+                    if (!TextUtils.isEmpty(contentType) && contentType.contains("application/json")) {
+                        errorMsg = nr.data == null ? "" : new String(nr.data);
+                        e = new JoyError(JoyError.TYPE_SERVER, statusCode, errorMsg);
                     }
                 }
             } else {
-                e = new Throwable();
+                e = new Throwable("");
             }
             if (mResponseListener != null) {
                 mResponseListener.onError(getTag(), e);

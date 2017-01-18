@@ -1,6 +1,6 @@
 <resources>
 
-    <!-- volley -->
+    <!-- error toast -->
     <string name="no_network_connection">无网络连接，请检查你的网络设置</string>
     <string name="generic_server_down">网络连接失败，请重试&#8230;</string>
     <string name="generic_server_timeout">网络连接超时</string>

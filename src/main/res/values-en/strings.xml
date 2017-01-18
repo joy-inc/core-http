@@ -1,6 +1,6 @@
 <resources>
 
-    <!-- volley -->
+    <!-- error toast -->
     <string name="no_network_connection">No network connection found</string>
     <string name="generic_server_down">Server Down</string>
     <string name="generic_server_timeout">Server Timeout</string>

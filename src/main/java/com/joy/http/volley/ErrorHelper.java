@@ -1,7 +1,6 @@
 package com.joy.http.volley;
 
 import android.content.Context;
-import android.text.TextUtils;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -27,6 +26,8 @@ public class ErrorHelper {
     // TimeoutError：Socket超时，服务器太忙或网络延迟会产生这个异常。默认情况下，Volley的超时时间为2.5秒。如果得到这个错误可以使用RetryPolicy。
 
     /**
+     * 过滤error的类型，返回相应的提示，如未被命中则返回空串。
+     *
      * @param error
      * @return Return generic message for errors
      */
@@ -50,8 +51,11 @@ public class ErrorHelper {
             errorMsg = appContext != null ? appContext.getString(R.string.parsing_failed) : "Parsing Failure";
         } else if (error instanceof RedirectError) {
             errorMsg = appContext != null ? appContext.getString(R.string.redirect_error) : "Redirect Error";
+        } else {
+//            errorMsg = error.getMessage();
+//            errorMsg = "";
         }
-        return TextUtils.isEmpty(errorMsg) ? error.getMessage() : errorMsg;
+        return errorMsg;
     }
 
     /**
