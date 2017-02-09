@@ -19,8 +19,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
+import java.util.Vector;
 
 /**
  * Created by KEVIN.DAI on 15/11/28.
@@ -101,30 +101,30 @@ public class RetroCache implements Cache {
     }
 
     public interface OnEntryListener {
-
         void onEntry(RetroEntry entry);
     }
 
-    private LinkedList<OnEntryListener> mOnEntryLisns;
+    private Vector<OnEntryListener> mOnEntryLisns;
 
     public void addEntryListener(OnEntryListener lisn) {
-
-        if (mOnEntryLisns == null)
-            mOnEntryLisns = new LinkedList<>();
+        if (mOnEntryLisns == null) {
+            mOnEntryLisns = new Vector<>();
+        }
         mOnEntryLisns.add(lisn);
     }
 
     public void removeEntryListener(OnEntryListener lisn) {
-
-        if (mOnEntryLisns != null)
+        if (mOnEntryLisns != null) {
             mOnEntryLisns.remove(lisn);
+        }
     }
 
     private void callbackEntryLisn(RetroEntry entry) {
-
-        if (mOnEntryLisns != null)
-            for (OnEntryListener lisn : mOnEntryLisns)
+        if (mOnEntryLisns != null) {
+            for (OnEntryListener lisn : mOnEntryLisns) {
                 lisn.onEntry(entry);
+            }
+        }
     }
 
     /**
@@ -134,9 +134,9 @@ public class RetroCache implements Cache {
     public synchronized Entry get(String key) {
         CacheHeader cacheHeader = mEntries.get(key);
         // if the entry does not exist, return.
-        if (cacheHeader == null)
+        if (cacheHeader == null) {
             return null;
-
+        }
         File file = getFileForKey(key);
         CountingInputStream cis = null;
         try {
