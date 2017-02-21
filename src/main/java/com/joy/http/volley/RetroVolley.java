@@ -36,13 +36,13 @@ public class RetroVolley {
     public static RetroRequestQueue newRequestQueue(Context context, HttpStack stack, int maxDiskCacheBytes) {
         File cacheDir = new File(context.getCacheDir(), DEFAULT_CACHE_DIR);
 
-        String userAgent = "volley/0";
-        try {
-            String packageName = context.getPackageName();
-            PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
-            userAgent = packageName + "/" + info.versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-        }
+//        String userAgent = "volley/0";
+//        try {
+//            String packageName = context.getPackageName();
+//            PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
+//            userAgent = packageName + "/" + info.versionCode;
+//        } catch (PackageManager.NameNotFoundException e) {
+//        }
 
         if (stack == null) {
             if (Build.VERSION.SDK_INT >= 9) {
