@@ -3,6 +3,7 @@ package com.joy.http.qyer;
 import com.joy.http.ReqFactory;
 import com.joy.http.utils.ParamsUtil;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -18,7 +19,11 @@ public class QyerReqFactory {
     }
 
     public static Map<String, String> getDefaultParams() {
-        return mDefaultParams;
+        Map<String, String> params = new HashMap<>();
+        if (mDefaultParams != null) {
+            params.putAll(mDefaultParams);
+        }
+        return params;
     }
 
     public static void clearDefaultParams() {
