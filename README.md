@@ -30,10 +30,10 @@ Maven:
  ```
 
 ### 请求方式：  
-- `REFRESH_ONLY` 获取网络，响应；
-- `CACHE_ONLY` 获取缓存，响应；
-- `REFRESH_AND_CACHE` 缓存过期了，获取网络，更新缓存，响应；
-- `CACHE_AND_REFRESH` 获取缓存，响应，获取网络，更新缓存，响应；
+- `JoyHttp.getLauncher().launchRefreshOnly();` `REFRESH_ONLY` 获取网络，响应；
+- `JoyHttp.getLauncher().launchCacheOnly();` `CACHE_ONLY` 获取缓存，响应；
+- `JoyHttp.getLauncher().launchRefreshAndCache();` `REFRESH_AND_CACHE` 缓存过期了，获取网络，更新缓存，响应；
+- `JoyHttp.getLauncher().launchCacheAndRefresh();` `CACHE_AND_REFRESH` 获取缓存，响应，获取网络，更新缓存，响应；
 
 **注意：每种请求方式的响应次数！**
 
@@ -52,15 +52,7 @@ Maven:
 ##### 初始化
 
 ```
-public class JoyApplication extends Application {
-
-    @Override
-    public void onCreate() {
-
-        super.onCreate();
-        JoyHttp.initialize(this, BuildConfig.DEBUG);
-    }
-}
+JoyHttp.initialize(this, BuildConfig.DEBUG);
 ```
 
 ##### 测试模式, 发送请求
@@ -70,10 +62,10 @@ public class JoyApplication extends Application {
 ```
 ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
 
-User user = new User(1, "Kevin");
+User user = new User(1, "Klevin");
 objReq.setTestData(user);// for test
 
-objReq.setResponseListener(new ObjectResponse<User>() {
+objReq.setResponseListener(new ResponseListenerImpl<User>() {
     @Override
     public void onSuccess(Object tag, User user) {
     }
@@ -81,18 +73,18 @@ objReq.setResponseListener(new ObjectResponse<User>() {
 JoyHttp.getLauncher().launchRefreshOnly(objReq);
 ```
 
-- 设置测试json
+- 设置测试json串
 
 ```
 ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
 
 String json = "{
                "id": 1,
-               "name": "Kevin"
+               "name": "Klevin"
                }";
 objReq.setTestData(json);// for test
 
-objReq.setResponseListener(new ObjectResponse<User>() {
+objReq.setResponseListener(new ResponseListenerImpl<User>() {
     @Override
     public void onSuccess(Object tag, User user) {
     }
@@ -108,14 +100,39 @@ GET请求, 并且提供了完整的URL。代码如下:
 
 ```
 ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
-objReq.setResponseListener(new ObjectResponse<User>() {
+objReq.setResponseListener(new ResponseListenerImpl<User>() {
     @Override
     public void onSuccess(Object tag, User user) {
     }
 
     @Override
-    public void onError(Object tag, String msg) {
+    public void onError(Object tag, Throwable error) {
+        super.onError(tag, error);
+        showErrorTipView();
     }
+
+    @Override
+    public void onError(Object tag, JoyError error) {
+        showToast(error.getMessage());
+    }
+});
+JoyHttp.getLauncher().launchRefreshOnly(objReq);
+```
+
+GET请求, 提供了完整的URL和请求头。代码如下:
+
+```
+Map<String, String> headers = new HashMap<>();
+headers.put("api-auth", "AD7A1775CA0B3154F9EDD");
+headers.put("user-token", "user_token");
+
+ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class, null, headers);
+objReq.setResponseListener(new ResponseListenerImpl<User>() {
+    @Override
+    public void onSuccess(Object tag, User user) {
+    }
+
+    ...
 });
 JoyHttp.getLauncher().launchRefreshOnly(objReq);
 ```
@@ -128,10 +145,12 @@ params.put("page", "1");
 params.put("count", "20");
 
 ObjectRequest<User> objReq = ReqFactory.newGet("http://open.qyer.com", User.class, params);
-objReq.setResponseListener(new ObjectResponse<User>() {
+objReq.setResponseListener(new ResponseListenerImpl<User>() {
     @Override
     public void onSuccess(Object tag, User user) {
     }
+
+    ...
 });
 JoyHttp.getLauncher().launchRefreshOnly(objReq);
 ```
@@ -148,10 +167,12 @@ headers.put("api-auth", "AD7A1775CA0B3154F9EDD");
 headers.put("user-token", "user_token");
 
 ObjectRequest<User> objReq = ReqFactory.newGet("http://open.qyer.com", User.class, params, headers);
-objReq.setResponseListener(new ObjectResponse<User>() {
+objReq.setResponseListener(new ResponseListenerImpl<User>() {
     @Override
     public void onSuccess(Object tag, User user) {
     }
+
+    ...
 });
 JoyHttp.getLauncher().launchRefreshOnly(objReq);
 ```
@@ -161,23 +182,45 @@ JoyHttp.getLauncher().launchRefreshOnly(objReq);
 ```
 ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
 JoyHttp.getLauncher().launchRefreshOnly(objReq)
-        .filter(new Func1<User, Boolean>() {
+        .subscribe(new Action1<User>() {// success
             @Override
-            public Boolean call(User user) {
-                return user != null;
+            public void call(User user) {
             }
-        })
-        .subscribe(new Action1<User>() {
+        }, new JoyErrorAction() {// error
             @Override
-            public void call(User user) {// success
+            public void call(Throwable t) {
+                super.call(t);
+                showErrorTipView();
             }
-        }, new Action1<Throwable>() {
+
             @Override
-            public void call(Throwable throwable) {// error
+            public void call(JoyError error) {
+                showToast(error.getMessage());
             }
-        }, new Action0() {
+        }, new Action0() {// complete
             @Override
-            public void call() {// complete
+            public void call() {
+            }
+        });
+```
+
+或者
+
+```
+ObjectRequest<User> objReq = ReqFactory.newGet("www.qyer.com", User.class);
+JoyHttp.getLauncher().launchRefreshOnly(objReq)
+        .subscribe(new Action1<User>() {// success
+            @Override
+            public void call(User user) {
+            }
+        }, new JoyErrorAction() {// error
+            @Override
+            public void call(JoyError error) {
+                showToast(error.getMessage());
+            }
+        }, new Action0() {// complete
+            @Override
+            public void call() {
             }
         });
 ```
