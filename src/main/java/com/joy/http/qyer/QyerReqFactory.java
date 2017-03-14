@@ -53,7 +53,11 @@ public class QyerReqFactory {
         if (ReqFactory.isParamsSingle(params)) {
             sb.append('?').append(ParamsUtil.createUrl(generateParams(params[0])));
         } else if (ReqFactory.isParamsDouble(params)) {
-            String fullUrl = sb.append('?').append(ParamsUtil.createUrl(generateParams(params[0]))).toString();
+            String fullUrl = baseUrl;
+            final Map<String, String> p = params[0];
+            if (p != null && !p.isEmpty()) {
+                fullUrl = sb.append('?').append(ParamsUtil.createUrl(generateParams(p))).toString();
+            }
             QyerRequest<T> req = QyerRequest.get(fullUrl, clazz);
             req.setHeaders(params[1]);
             return req;
