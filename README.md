@@ -31,9 +31,9 @@ Maven:
 
 ### 请求方式：  
 - `JoyHttp.getLauncher().launchRefreshOnly();` `REFRESH_ONLY` 获取网络，响应；
-- `JoyHttp.getLauncher().launchCacheOnly();` `CACHE_ONLY` 获取缓存，响应；
-- `JoyHttp.getLauncher().launchRefreshAndCache();` `REFRESH_AND_CACHE` 缓存过期了，获取网络，更新缓存，响应；
-- `JoyHttp.getLauncher().launchCacheAndRefresh();` `CACHE_AND_REFRESH` 获取缓存，响应，获取网络，更新缓存，响应；
+- `JoyHttp.getLauncher().launchCacheOrRefresh();` `CACHE_OR_REFRESH` 无缓存时获取网络，响应；有缓存时获取缓存，响应；
+- `JoyHttp.getLauncher().launchRefreshAndCache();` `REFRESH_AND_CACHE` 获取网络，更新缓存，响应；
+- `JoyHttp.getLauncher().launchCacheAndRefresh();` `CACHE_AND_REFRESH` 获取缓存，响应，然后获取网络，更新缓存，响应；
 
 **注意：每种请求方式的响应次数！**
 

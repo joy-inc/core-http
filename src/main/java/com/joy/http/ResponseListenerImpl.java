@@ -7,16 +7,16 @@ package com.joy.http;
 public class ResponseListenerImpl<T> implements ResponseListener<T> {
 
     @Override
-    public void onSuccess(Object tag, T t) {
+    public void onSuccess(T t) {
     }
 
     @Override
-    public void onError(Object tag, Throwable error) {
+    public void onError(Throwable error) {
         if (error instanceof JoyError) {
-            onError(tag, (JoyError) error);
+            onError((JoyError) error);
         }
     }
 
-    public void onError(Object tag, JoyError error) {
+    public void onError(JoyError error) {
     }
 }

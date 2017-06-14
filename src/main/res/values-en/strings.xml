@@ -1,12 +1,10 @@
 <resources>
 
     <!-- error toast -->
-    <string name="no_network_connection">No network connection found</string>
     <string name="generic_server_down">Server Down</string>
     <string name="generic_server_timeout">Server Timeout</string>
     <string name="generic_error">No Internet</string>
     <string name="no_internet">No Internet</string>
-    <string name="parsing_failed">Parsing Failure</string>
     <string name="auth_failed">Authentication Failure</string>
     <string name="redirect_error">Redirect Error</string>
 </resources>

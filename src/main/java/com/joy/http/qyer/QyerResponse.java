@@ -1,7 +1,5 @@
 package com.joy.http.qyer;
 
-import com.joy.http.JoyError;
-
 /**
  * Created by KEVIN.DAI on 15/7/16.
  *
@@ -22,9 +20,9 @@ public class QyerResponse<T> {
      * -11	TOKEN过期
      * -12	用户未登录
      */
-    private int status = JoyError.STATUS_NONE;// 错误状态
+    private int status;// 错误状态
     private String msg = "";// 提示信息
-    private T data;// 数据
+    private T t;// 数据
 
     public QyerResponse() {
     }
@@ -50,19 +48,19 @@ public class QyerResponse<T> {
         return status;
     }
 
-    public void setData(T data) {
-        this.data = data;
+    public void setData(T t) {
+        this.t = t;
     }
 
     public T getData() {
-        return data;
+        return t;
     }
 
     public boolean isSuccess() {
-        return this.status == STATUS_SUCCESS;
+        return status == STATUS_SUCCESS;
     }
 
     public boolean isFailed() {
-        return this.status != STATUS_SUCCESS;
+        return status != STATUS_SUCCESS;
     }
 }
