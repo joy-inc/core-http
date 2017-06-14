@@ -1,86 +1,91 @@
-package com.joy.http.volley;
+/*
+ * Copyright (C) 2011 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.joy.http.volley.toolbox;
 
 import android.os.SystemClock;
+import android.util.Log;
 
-import com.android.volley.Cache;
-import com.android.volley.VolleyLog;
+import com.joy.http.volley.Cache;
+import com.joy.http.volley.VolleyLog;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Vector;
+import java.util.Set;
 
 /**
- * Created by KEVIN.DAI on 15/11/28.
+ * Cache implementation that caches files directly onto the hard disk in the specified
+ * directory. The default disk usage size is 5MB, but is configurable.
  */
-public class RetroCache implements Cache {
+public class DiskBasedCache implements Cache {
 
-    /**
-     * Map of the Key, CacheHeader pairs
-     */
+    /** Map of the Key, CacheHeader pairs */
     private final Map<String, CacheHeader> mEntries =
-            new LinkedHashMap<String, CacheHeader>(16, .75f, true);
+            new LinkedHashMap<>(16, .75f, true);
 
-    /**
-     * Total amount of space currently used by the cache in bytes.
-     */
+    /** Total amount of space currently used by the cache in bytes. */
     private long mTotalSize = 0;
 
-    /**
-     * The root directory to use for the cache.
-     */
+    /** The root directory to use for the cache. */
     private final File mRootDirectory;
 
-    /**
-     * The maximum size of the cache in bytes.
-     */
+    /** The maximum size of the cache in bytes. */
     private final int mMaxCacheSizeInBytes;
 
-    /**
-     * Default maximum disk usage in bytes.
-     */
+    /** Default maximum disk usage in bytes. */
     private static final int DEFAULT_DISK_USAGE_BYTES = 5 * 1024 * 1024;
 
-    /**
-     * High water mark percentage for the cache
-     */
+    /** High water mark percentage for the cache */
     private static final float HYSTERESIS_FACTOR = 0.9f;
 
-    /**
-     * Magic number for current version of cache file format.
-     */
+    /** Magic number for current version of cache file format. */
     private static final int CACHE_MAGIC = 0x20150306;
 
+    private final Set<String> mCacheFileNames = new HashSet<>();
+
     /**
-     * Constructs an instance of the RetroCache at the specified directory.
+     * Constructs an instance of the DiskBasedCache at the specified directory.
      *
      * @param rootDirectory       The root directory of the cache.
      * @param maxCacheSizeInBytes The maximum size of the cache in bytes.
      */
-    public RetroCache(File rootDirectory, int maxCacheSizeInBytes) {
+    public DiskBasedCache(File rootDirectory, int maxCacheSizeInBytes) {
         mRootDirectory = rootDirectory;
         mMaxCacheSizeInBytes = maxCacheSizeInBytes;
     }
 
     /**
-     * Constructs an instance of the RetroCache at the specified directory using
+     * Constructs an instance of the DiskBasedCache at the specified directory using
      * the default maximum cache size of 5MB.
      *
      * @param rootDirectory The root directory of the cache.
      */
-    public RetroCache(File rootDirectory) {
+    public DiskBasedCache(File rootDirectory) {
         this(rootDirectory, DEFAULT_DISK_USAGE_BYTES);
     }
 
@@ -97,34 +102,8 @@ public class RetroCache implements Cache {
         }
         mEntries.clear();
         mTotalSize = 0;
+        mCacheFileNames.clear();
         VolleyLog.d("Cache cleared.");
-    }
-
-    public interface OnEntryListener {
-        void onEntry(RetroEntry entry);
-    }
-
-    private Vector<OnEntryListener> mOnEntryLisns;
-
-    public void addEntryListener(OnEntryListener lisn) {
-        if (mOnEntryLisns == null) {
-            mOnEntryLisns = new Vector<>();
-        }
-        mOnEntryLisns.add(lisn);
-    }
-
-    public void removeEntryListener(OnEntryListener lisn) {
-        if (mOnEntryLisns != null) {
-            mOnEntryLisns.remove(lisn);
-        }
-    }
-
-    private void callbackEntryLisn(RetroEntry entry) {
-        if (mOnEntryLisns != null) {
-            for (OnEntryListener lisn : mOnEntryLisns) {
-                lisn.onEntry(entry);
-            }
-        }
     }
 
     /**
@@ -132,43 +111,44 @@ public class RetroCache implements Cache {
      */
     @Override
     public synchronized Entry get(String key) {
-        CacheHeader cacheHeader = mEntries.get(key);
-        // if the entry does not exist, return.
-        if (cacheHeader == null) {
+//        CacheHeader entry = mEntries.get(key);
+//        // if the entry does not exist, return.
+//        if (entry == null) {
+//            return null;
+//        }
+//        File file = getFileForKey(key);
+//        try {
+//            CountingInputStream cis = new CountingInputStream(new BufferedInputStream(new FileInputStream(file)));
+//            CacheHeader.readHeader(cis); // eat header
+////            byte[] data = streamToBytes(cis, (int) (file.length() - cis.bytesRead));
+//            return entry.toCacheEntry(cis, file.length() - cis.bytesRead);
+//        } catch (IOException e) {
+//            VolleyLog.d("%s: %s", file.getAbsolutePath(), e.toString());
+//            remove(key);
+//            return null;
+//        } catch (NegativeArraySizeException e) {
+//            VolleyLog.d("%s: %s", file.getAbsolutePath(), e.toString());
+//            remove(key);
+//            return null;
+//        }
+
+        File file = getFileForKey(key);
+        if (file == null || !file.exists()) {
             return null;
         }
-        File file = getFileForKey(key);
-        CountingInputStream cis = null;
         try {
-            cis = new CountingInputStream(new BufferedInputStream(new FileInputStream(file)));
-            CacheHeader.readHeader(cis); // eat header
-            byte[] data = streamToBytes(cis, (int) (file.length() - cis.bytesRead));
-            RetroEntry entry = cacheHeader.toCacheEntry(data);
-
-            callbackEntryLisn(entry);
-
+            Entry entry = new Entry();
+            entry.contentLength = file.length();
+            entry.data = new FileInputStream(file);
             return entry;
-        } catch (IOException e) {
-            VolleyLog.d("%s: %s", file.getAbsolutePath(), e.toString());
-            remove(key);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
             return null;
-        } catch (NegativeArraySizeException e) {
-            VolleyLog.d("%s: %s", file.getAbsolutePath(), e.toString());
-            remove(key);
-            return null;
-        } finally {
-            if (cis != null) {
-                try {
-                    cis.close();
-                } catch (IOException ioe) {
-                    return null;
-                }
-            }
         }
     }
 
     /**
-     * Initializes the RetroCache by scanning for all files currently in the
+     * Initializes the DiskBasedCache by scanning for all files currently in the
      * specified root directory. Creates the root directory if necessary.
      */
     @Override
@@ -179,79 +159,110 @@ public class RetroCache implements Cache {
             }
             return;
         }
-
         File[] files = mRootDirectory.listFiles();
-        if (files == null) {
-            return;
-        }
-
-        for (File file : files) {
-            BufferedInputStream fis = null;
-            try {
-                fis = new BufferedInputStream(new FileInputStream(file));
-                CacheHeader entry = CacheHeader.readHeader(fis);
-                entry.size = file.length();
-                putEntry(entry.key, entry);
-            } catch (IOException e) {
-                if (file != null) {
-                    file.delete();
-                }
-            } finally {
-                try {
-                    if (fis != null) {
-                        fis.close();
-                    }
-                } catch (IOException ignored) {
-                }
+        if (files != null) {
+            for (File f : files) {
+                Log.e("daisw", "~~~file name: " + f.getName());
+                mCacheFileNames.add(f.getName());
             }
         }
+
+//        File[] files = mRootDirectory.listFiles();
+//        if (files == null) {
+//            return;
+//        }
+//        for (File file : files) {
+//            BufferedInputStream fis = null;
+//            try {
+//                fis = new BufferedInputStream(new FileInputStream(file));
+//                CacheHeader entry = CacheHeader.readHeader(fis);
+//                entry.size = file.length();
+//                putEntry(entry.key, entry);
+//            } catch (IOException e) {
+//                if (file != null) {
+//                    file.delete();
+//                }
+//            } finally {
+//                try {
+//                    if (fis != null) {
+//                        fis.close();
+//                    }
+//                } catch (IOException ignored) {
+//                }
+//            }
+//        }
     }
 
-    /**
-     * Invalidates an entry in the cache.
-     *
-     * @param key        Cache key
-     * @param fullExpire True to fully expire the entry, false to soft expire
-     */
     @Override
-    public synchronized void invalidate(String key, boolean fullExpire) {
-        Entry entry = get(key);
-        if (entry != null) {
-            entry.softTtl = 0;
-            if (fullExpire) {
-                entry.ttl = 0;
-            }
-            put(key, entry);
-        }
-
+    public boolean hasCache(String key) {
+        String fileName = getFilenameForKey(key);
+        return mCacheFileNames.contains(fileName);
     }
+
+//    /**
+//     * Invalidates an entry in the cache.
+//     *
+//     * @param key Cache key
+//     * @param fullExpire True to fully expire the entry, false to soft expire
+//     */
+//    @Override
+//    public synchronized void invalidate(String key, boolean fullExpire) {
+//        Entry entry = get(key);
+//        if (entry != null) {
+//            entry.softTtl = 0;
+//            if (fullExpire) {
+//                entry.ttl = 0;
+//            }
+//            put(key, entry);
+//        }
+//    }
 
     /**
      * Puts the entry with the specified key into the cache.
      */
     @Override
-    public synchronized void put(String key, Entry entry) {
-        pruneIfNeeded(entry.data.length);
-        File file = getFileForKey(key);
-        try {
-            BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(file));
-            CacheHeader e = new CacheHeader(key, entry);
-            boolean success = e.writeHeader(fos);
-            if (!success) {
-                fos.close();
-                VolleyLog.d("Failed to write header for %s", file.getAbsolutePath());
-                throw new IOException();
-            }
-            fos.write(entry.data);
-            fos.close();
-            putEntry(key, e);
-            return;
-        } catch (IOException e) {
-        }
-        boolean deleted = file.delete();
-        if (!deleted) {
-            VolleyLog.d("Could not clean up file %s", file.getAbsolutePath());
-        }
+//    public synchronized void put(String key, Entry entry) {
+    public synchronized void put(String key) {
+//        byte[] data = null;
+//        try {
+//            data = streamToBytes(entry.data, (int) entry.contentLength);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            try {
+//                entry.data.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        if (data == null) {
+//            return;
+//        }
+//        pruneIfNeeded(data.length);
+//        File file = getFileForKey(key);
+//        try {
+//            BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(file));
+//            CacheHeader e = new CacheHeader(key, entry);
+//            boolean success = e.writeHeader(fos);
+//            if (!success) {
+//                fos.close();
+//                VolleyLog.d("Failed to write header for %s", file.getAbsolutePath());
+//                throw new IOException();
+//            }
+//            fos.write(data);
+//            fos.close();
+//            putEntry(key, e);
+//            return;
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        boolean deleted = file.delete();
+//        if (!deleted) {
+//            VolleyLog.d("Could not clean up file %s", file.getAbsolutePath());
+//        }
+
+        String fileName = getFilenameForKey(key);
+        mCacheFileNames.add(fileName);
     }
 
     /**
@@ -259,9 +270,11 @@ public class RetroCache implements Cache {
      */
     @Override
     public synchronized void remove(String key) {
-        boolean deleted = getFileForKey(key).delete();
+        File f = getFileForKey(key);
         removeEntry(key);
-        if (!deleted) {
+        if (f != null && f.delete()) {
+            mCacheFileNames.remove(f.getName());
+        } else {
             VolleyLog.d("Could not delete cache entry for key=%s, filename=%s",
                     key, getFilenameForKey(key));
         }
@@ -273,7 +286,7 @@ public class RetroCache implements Cache {
      * @param key The key to generate a file name for.
      * @return A pseudo-unique filename.
      */
-    private String getFilenameForKey(String key) {
+    public static String getFilenameForKey(String key) {
         int firstHalfLength = key.length() / 2;
         String localFilename = String.valueOf(key.substring(0, firstHalfLength).hashCode());
         localFilename += String.valueOf(key.substring(firstHalfLength).hashCode());
@@ -283,7 +296,14 @@ public class RetroCache implements Cache {
     /**
      * Returns a file object for the given cache key.
      */
+    @Override
     public File getFileForKey(String key) {
+        if (!mRootDirectory.exists()) {
+            if (!mRootDirectory.mkdirs()) {
+                VolleyLog.e("Unable to create cache dir %s", mRootDirectory.getAbsolutePath());
+                return null;
+            }
+        }
         return new File(mRootDirectory, getFilenameForKey(key));
     }
 
@@ -308,9 +328,10 @@ public class RetroCache implements Cache {
         while (iterator.hasNext()) {
             Map.Entry<String, CacheHeader> entry = iterator.next();
             CacheHeader e = entry.getValue();
-            boolean deleted = getFileForKey(e.key).delete();
-            if (deleted) {
+            File f = getFileForKey(e.key);
+            if (f != null && f.delete()) {
                 mTotalSize -= e.size;
+                mCacheFileNames.remove(f.getName());
             } else {
                 VolleyLog.d("Could not delete cache entry for key=%s, filename=%s",
                         e.key, getFilenameForKey(e.key));
@@ -376,46 +397,30 @@ public class RetroCache implements Cache {
      * Handles holding onto the cache headers for an entry.
      */
     // Visible for testing.
-    static class CacheHeader {
-        /**
-         * The size of the data identified by this CacheHeader. (This is not
-         * serialized to disk.
-         */
+    public static class CacheHeader {
+        /** The size of the data identified by this CacheHeader. (This is not
+         * serialized to disk. */
         public long size;
 
-        /**
-         * The key that identifies the cache entry.
-         */
+        /** The key that identifies the cache entry. */
         public String key;
 
-        /**
-         * ETag for cache coherence.
-         */
+        /** ETag for cache coherence. */
         public String etag;
 
-        /**
-         * Date of this response as reported by the server.
-         */
+        /** Date of this response as reported by the server. */
         public long serverDate;
 
-        /**
-         * The last modified date for the requested object.
-         */
+        /** The last modified date for the requested object. */
         public long lastModified;
 
-        /**
-         * TTL for this record.
-         */
+        /** TTL for this record. */
         public long ttl;
 
-        /**
-         * Soft TTL for this record.
-         */
+        /** Soft TTL for this record. */
         public long softTtl;
 
-        /**
-         * Headers from the response resulting in this cache entry.
-         */
+        /** Headers from the response resulting in this cache entry. */
         public Map<String, String> responseHeaders;
 
         private CacheHeader() {
@@ -428,9 +433,8 @@ public class RetroCache implements Cache {
          * @param entry The cache entry.
          */
         public CacheHeader(String key, Entry entry) {
-
             this.key = key;
-            this.size = entry.data.length;
+            this.size = entry.contentLength;
             this.etag = entry.etag;
             this.serverDate = entry.serverDate;
             this.lastModified = entry.lastModified;
@@ -446,9 +450,7 @@ public class RetroCache implements Cache {
          * @throws IOException
          */
         public static CacheHeader readHeader(InputStream is) throws IOException {
-
             CacheHeader entry = new CacheHeader();
-
             int magic = readInt(is);
             if (magic != CACHE_MAGIC) {
                 // don't bother deleting, it'll get pruned eventually
@@ -456,8 +458,9 @@ public class RetroCache implements Cache {
             }
             entry.key = readString(is);
             entry.etag = readString(is);
-            if (entry.etag.equals(""))
+            if (entry.etag.equals("")) {
                 entry.etag = null;
+            }
             entry.serverDate = readLong(is);
             entry.lastModified = readLong(is);
             entry.ttl = readLong(is);
@@ -470,34 +473,34 @@ public class RetroCache implements Cache {
         /**
          * Creates a cache entry for the specified data.
          */
-        public RetroEntry toCacheEntry(byte[] data) {
-
-            RetroEntry entry = new RetroEntry();
-            entry.data = data;
-            entry.etag = etag;
-            entry.serverDate = serverDate;
-            entry.lastModified = lastModified;
-            entry.ttl = ttl;
-            entry.softTtl = softTtl;
-            entry.responseHeaders = responseHeaders;
-            return entry;
+        public Entry toCacheEntry(InputStream data, long length) {
+            Entry e = new Entry();
+            e.data = data;
+            e.contentLength = length;
+            e.etag = etag;
+            e.serverDate = serverDate;
+            e.lastModified = lastModified;
+            e.ttl = ttl;
+            e.softTtl = softTtl;
+            e.responseHeaders = responseHeaders;
+            return e;
         }
 
 
         /**
          * Writes the contents of this CacheHeader to the specified OutputStream.
          */
-        public boolean writeHeader(OutputStream os) {
+        public boolean writeHeader(Writer w) {
             try {
-                writeInt(os, CACHE_MAGIC);
-                writeString(os, key);
-                writeString(os, etag == null ? "" : etag);
-                writeLong(os, serverDate);
-                writeLong(os, lastModified);
-                writeLong(os, ttl);
-                writeLong(os, softTtl);
-                writeStringStringMap(responseHeaders, os);
-                os.flush();
+                writeInt(w, CACHE_MAGIC);
+                writeString(w, key);
+                writeString(w, etag == null ? "" : etag);
+                writeLong(w, serverDate);
+                writeLong(w, lastModified);
+                writeLong(w, ttl);
+                writeLong(w, softTtl);
+                writeStringStringMap(responseHeaders, w);
+                w.flush();
                 return true;
             } catch (IOException e) {
                 VolleyLog.d("%s", e.toString());
@@ -552,11 +555,11 @@ public class RetroCache implements Cache {
         return b;
     }
 
-    static void writeInt(OutputStream os, int n) throws IOException {
-        os.write((n >> 0) & 0xff);
-        os.write((n >> 8) & 0xff);
-        os.write((n >> 16) & 0xff);
-        os.write((n >> 24) & 0xff);
+    static void writeInt(Writer w, int n) throws IOException {
+        w.write((n >> 0) & 0xff);
+        w.write((n >> 8) & 0xff);
+        w.write((n >> 16) & 0xff);
+        w.write((n >> 24) & 0xff);
     }
 
     static int readInt(InputStream is) throws IOException {
@@ -568,15 +571,15 @@ public class RetroCache implements Cache {
         return n;
     }
 
-    static void writeLong(OutputStream os, long n) throws IOException {
-        os.write((byte) (n >>> 0));
-        os.write((byte) (n >>> 8));
-        os.write((byte) (n >>> 16));
-        os.write((byte) (n >>> 24));
-        os.write((byte) (n >>> 32));
-        os.write((byte) (n >>> 40));
-        os.write((byte) (n >>> 48));
-        os.write((byte) (n >>> 56));
+    static void writeLong(Writer w, long n) throws IOException {
+        w.write((byte) (n >>> 0));
+        w.write((byte) (n >>> 8));
+        w.write((byte) (n >>> 16));
+        w.write((byte) (n >>> 24));
+        w.write((byte) (n >>> 32));
+        w.write((byte) (n >>> 40));
+        w.write((byte) (n >>> 48));
+        w.write((byte) (n >>> 56));
     }
 
     static long readLong(InputStream is) throws IOException {
@@ -592,10 +595,9 @@ public class RetroCache implements Cache {
         return n;
     }
 
-    static void writeString(OutputStream os, String s) throws IOException {
-        byte[] b = s.getBytes("UTF-8");
-        writeLong(os, b.length);
-        os.write(b, 0, b.length);
+    static void writeString(Writer w, String s) throws IOException {
+        writeLong(w, s.length());
+        w.write(s);
     }
 
     static String readString(InputStream is) throws IOException {
@@ -604,23 +606,21 @@ public class RetroCache implements Cache {
         return new String(b, "UTF-8");
     }
 
-    static void writeStringStringMap(Map<String, String> map, OutputStream os) throws IOException {
+    static void writeStringStringMap(Map<String, String> map, Writer w) throws IOException {
         if (map != null) {
-            writeInt(os, map.size());
+            writeInt(w, map.size());
             for (Map.Entry<String, String> entry : map.entrySet()) {
-                writeString(os, entry.getKey());
-                writeString(os, entry.getValue());
+                writeString(w, entry.getKey());
+                writeString(w, entry.getValue());
             }
         } else {
-            writeInt(os, 0);
+            writeInt(w, 0);
         }
     }
 
     static Map<String, String> readStringStringMap(InputStream is) throws IOException {
         int size = readInt(is);
-        Map<String, String> result = (size == 0)
-                ? Collections.<String, String>emptyMap()
-                : new HashMap<String, String>(size);
+        Map<String, String> result = (size == 0) ? Collections.emptyMap() : new HashMap(size);
         for (int i = 0; i < size; i++) {
             String key = readString(is).intern();
             String value = readString(is).intern();

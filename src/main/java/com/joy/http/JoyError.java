@@ -1,59 +1,80 @@
 package com.joy.http;
 
 /**
- * Created by Daisw on 2016/12/22.
+ * Created by Daisw on 2017/5/25.
  */
 
-public class JoyError extends Throwable {
+public class JoyError extends Exception {
 
     /**
-     * 错误类型，区别于statusCode，用来区分此错误是接口返回的自定义错误还是HTTP错误。
+     * 错误类型：区别于statusCode，用来标识当前错误的类型（接口定义的错误、HTTP错误）。
      */
     public static final int TYPE_NONE = 0;
     public static final int TYPE_HTTP = 1;
-    public static final int TYPE_SERVER = 2;
-    private int type;
+    public static final int TYPE_SERVER_DEFINED = 2;
+    private int mType = TYPE_NONE;
 
     /**
-     * 状态码，如4xx或5xx等HTTP状态码或服务器定义的状态码（Token失效、参数错误等），
-     * 需要用type来区分
+     * 状态码：HTTP状态码（4xx、5xx等）；服务器定义的状态码用来标识Token失效、参数错误等。
+     * 需要用type来区分。
      */
-    public static final int STATUS_NONE = 0;
-    private int statusCode;
+    private int mStatusCode;
+
+    public JoyError() {
+        super();
+    }
 
     public JoyError(int type, int statusCode, String message) {
         super(message);
-        this.type = type;
-        this.statusCode = statusCode;
+        mType = type;
+        mStatusCode = statusCode;
+    }
+
+    public JoyError(int type, int statusCode) {
+        this(type, statusCode, "");
+    }
+
+    public JoyError(int type, int statusCode, Throwable cause) {
+        super(cause);
+        mType = type;
+        mStatusCode = statusCode;
     }
 
     public JoyError(String message) {
         super(message);
-        this.type = TYPE_NONE;
-        this.statusCode = STATUS_NONE;
+    }
+
+    public JoyError(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public JoyError(Throwable cause) {
+        super(cause);
     }
 
     public int getType() {
-        return this.type;
+        return mType;
     }
 
     public int getStatusCode() {
-        return this.statusCode;
+        return mStatusCode;
     }
 
     public boolean isHttpError() {
-        return this.type == TYPE_HTTP;
+        return mType == TYPE_HTTP;
     }
 
-    public boolean isServerError() {
-        return this.type == TYPE_HTTP;
+    public boolean isServerDefinedError() {
+        return mType == TYPE_SERVER_DEFINED;
     }
 
-    public boolean isOtherErrors() {
-        return !isHttpError() && !isServerError();
+    private boolean isCancelCaused;
+
+    public void setCancelCaused(boolean cancelCaused) {
+        isCancelCaused = cancelCaused;
     }
 
-    public boolean isStatusCodeValid() {
-        return statusCode != STATUS_NONE;
+    public boolean isCancelCaused() {
+        return isCancelCaused;
     }
 }

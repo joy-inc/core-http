@@ -2,14 +2,6 @@ package com.joy.http.volley;
 
 import android.content.Context;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
-import com.android.volley.NoConnectionError;
-import com.android.volley.ParseError;
-import com.android.volley.RedirectError;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
-import com.joy.http.JoyHttp;
 import com.joy.http.R;
 
 /**
@@ -28,15 +20,15 @@ public class ErrorHelper {
     /**
      * 过滤error的类型，返回相应的提示，如未被命中则返回空串。
      *
+     * @param appContext
      * @param error
      * @return Return generic message for errors
      */
-    public static String getErrorType(Throwable error) {
+    public static String getErrorType(Context appContext, Throwable error) {
         String errorMsg = "";
         if (error == null) {
             return errorMsg;
         }
-        Context appContext = JoyHttp.getContext();
         if (error instanceof TimeoutError) {
             errorMsg = appContext != null ? appContext.getString(R.string.generic_server_timeout) : "Server Timeout";
         } else if (error instanceof ServerError) {
@@ -45,10 +37,6 @@ public class ErrorHelper {
             errorMsg = appContext != null ? appContext.getString(R.string.auth_failed) : "Authentication Failure";
         } else if (error instanceof NetworkError) {
             errorMsg = appContext != null ? appContext.getString(R.string.no_internet) : "No internet";
-        } else if (error instanceof NoConnectionError) {
-            errorMsg = appContext != null ? appContext.getString(R.string.no_network_connection) : "No network connection found";
-        } else if (error instanceof ParseError) {
-            errorMsg = appContext != null ? appContext.getString(R.string.parsing_failed) : "Parsing Failure";
         } else if (error instanceof RedirectError) {
             errorMsg = appContext != null ? appContext.getString(R.string.redirect_error) : "Redirect Error";
         } else {
@@ -56,25 +44,5 @@ public class ErrorHelper {
 //            errorMsg = "";
         }
         return errorMsg;
-    }
-
-    /**
-     * Determines whether the error is related to network
-     *
-     * @param error
-     * @return
-     */
-    private static boolean isNetworkProblem(Throwable error) {
-        return (error instanceof NetworkError) || (error instanceof NoConnectionError);
-    }
-
-    /**
-     * Determines whether the error is related to server
-     *
-     * @param error
-     * @return
-     */
-    private static boolean isServerProblem(Throwable error) {
-        return (error instanceof ServerError) || (error instanceof AuthFailureError);
     }
 }

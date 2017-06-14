@@ -2,6 +2,7 @@ package com.joy.http;
 
 import com.joy.http.utils.ParamsUtil;
 import com.joy.http.volley.ObjectRequest;
+import com.joy.http.volley.Request.Method;
 
 import java.util.Map;
 
@@ -29,11 +30,11 @@ public class ReqFactory {
             if (p != null && !p.isEmpty()) {
                 fullUrl = sb.append('?').append(ParamsUtil.createUrl(p)).toString();
             }
-            ObjectRequest<T> req = ObjectRequest.get(fullUrl, clazz);
+            ObjectRequest<T> req = new ObjectRequest(Method.GET, fullUrl, clazz);
             req.setHeaders(params[1]);
             return req;
         }
-        return ObjectRequest.get(sb.toString(), clazz);
+        return new ObjectRequest(Method.GET, sb.toString(), clazz);
     }
 
     /**
@@ -45,7 +46,7 @@ public class ReqFactory {
      */
     public static <T> ObjectRequest<T> newPost(String baseUrl, Class<?> clazz, Map<String, String>... params) {
         checkParamsIsValid(params);
-        ObjectRequest<T> req = ObjectRequest.post(baseUrl, clazz);
+        ObjectRequest<T> req = new ObjectRequest(Method.POST, baseUrl, clazz);
         if (isParamsSingle(params)) {
             req.setParams(params[0]);
         } else if (isParamsDouble(params)) {

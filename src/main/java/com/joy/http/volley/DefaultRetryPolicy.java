@@ -1,0 +1,79 @@
+/*
+ * Copyright (C) 2011 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.joy.http.volley;
+
+import com.joy.http.JoyError;
+
+/**
+ * Default retry policy for requests.
+ */
+public class DefaultRetryPolicy implements RetryPolicy {
+    /** The current timeout in milliseconds. */
+    private int mCurrentTimeoutMs;
+
+    /** The current retry count. */
+    private int mCurrentRetryCount;
+
+    /** The maximum number of attempts. */
+    private final int mMaxNumRetries;
+
+    /**
+     * Constructs a new retry policy.
+     * @param initialTimeoutMs The initial timeout for the policy.
+     * @param maxNumRetries The maximum number of retries.
+     */
+    public DefaultRetryPolicy(int initialTimeoutMs, int maxNumRetries) {
+        mCurrentTimeoutMs = initialTimeoutMs;
+        mMaxNumRetries = maxNumRetries;
+    }
+
+    /**
+     * Returns the current timeout.
+     */
+    @Override
+    public int getCurrentTimeout() {
+        return mCurrentTimeoutMs;
+    }
+
+    /**
+     * Returns the current retry count.
+     */
+    @Override
+    public int getCurrentRetryCount() {
+        return mCurrentRetryCount;
+    }
+
+    /**
+     * Prepares for the next retry by applying a backoff to the timeout.
+     * @param error The error code of the last attempt.
+     */
+    @Override
+    public void retry(JoyError error) throws JoyError {
+        mCurrentRetryCount++;
+        mCurrentTimeoutMs += mCurrentTimeoutMs;
+        if (!hasAttemptRemaining()) {
+            throw error;
+        }
+    }
+
+    /**
+     * Returns true if this policy has attempts remaining, false otherwise.
+     */
+    protected boolean hasAttemptRemaining() {
+        return mCurrentRetryCount <= mMaxNumRetries;
+    }
+}

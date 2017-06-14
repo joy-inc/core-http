@@ -2,6 +2,7 @@ package com.joy.http.qyer;
 
 import com.joy.http.ReqFactory;
 import com.joy.http.utils.ParamsUtil;
+import com.joy.http.volley.Request.Method;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,11 +59,11 @@ public class QyerReqFactory {
             if (p != null && !p.isEmpty()) {
                 fullUrl = sb.append('?').append(ParamsUtil.createUrl(generateParams(p))).toString();
             }
-            QyerRequest<T> req = QyerRequest.get(fullUrl, clazz);
+            QyerRequest<T> req = new QyerRequest(Method.GET, fullUrl, clazz);
             req.setHeaders(params[1]);
             return req;
         }
-        return QyerRequest.get(sb.toString(), clazz);
+        return new QyerRequest(Method.GET, sb.toString(), clazz);
     }
 
     /**
@@ -74,7 +75,7 @@ public class QyerReqFactory {
      */
     public static <T> QyerRequest<T> newPost(String baseUrl, Class<?> clazz, Map<String, String>... params) {
         ReqFactory.checkParamsIsValid(params);
-        QyerRequest<T> req = QyerRequest.post(baseUrl, clazz);
+        QyerRequest<T> req = new QyerRequest(Method.POST, baseUrl, clazz);
         if (ReqFactory.isParamsSingle(params)) {
             req.setParams(generateParams(params[0]));
         } else if (ReqFactory.isParamsDouble(params)) {

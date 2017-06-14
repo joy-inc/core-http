@@ -2,12 +2,10 @@ package com.joy.http;
 
 import android.content.Context;
 
-import com.android.volley.Cache;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyLog;
 import com.joy.http.qyer.QyerReqFactory;
-import com.joy.http.volley.RetroRequestQueue;
-import com.joy.http.volley.RetroVolley;
+import com.joy.http.volley.RequestLauncher;
+import com.joy.http.volley.VolleyLog;
+import com.joy.http.volley.toolbox.Volley;
 
 import java.util.Map;
 
@@ -16,20 +14,23 @@ import java.util.Map;
  */
 public class JoyHttp {
 
-    private static volatile RetroRequestQueue mReqQueue;
-    private static Context mAppContext;
+    private static volatile RequestLauncher mLauncher;
+
+    private static final int DEFAULT_TIMEOUT_MS = 10 * 1000;
+    private static final int DEFAULT_MAX_RETRIES = 0;
+    private static int mTimeoutMs = DEFAULT_TIMEOUT_MS;
+    private static int mRetryCount = DEFAULT_MAX_RETRIES;
 
     private JoyHttp() {
     }
 
     public static void initialize(Context appContext, boolean debug) {
-        if (mReqQueue == null) {
+        if (mLauncher == null) {
             synchronized (JoyHttp.class) {
-                if (mReqQueue == null) {
-                    mAppContext = appContext;
+                if (mLauncher == null) {
                     VolleyLog.DEBUG = debug;
-                    mReqQueue = RetroVolley.newRequestQueue(appContext);
-                    mReqQueue.addRequestFinishedListener(mReqFinishLis);
+                    mLauncher = Volley.newLauncher(appContext);
+//                    mLauncher.addRequestFinishedListener(mReqFinishLis);
                 }
             }
         }
@@ -41,31 +42,42 @@ public class JoyHttp {
     }
 
     public static void shutDown() {
-        if (mReqQueue != null) {
-            mReqQueue.removeRequestFinishedListener(mReqFinishLis);
-            mReqQueue.cancelAll(request -> true);
-            mReqQueue.stop();
-            mReqQueue = null;
+        if (mLauncher != null) {
+//            mLauncher.removeRequestFinishedListener(mReqFinishLis);
+            mLauncher.cancelAll(request -> true);
+            mLauncher.stop();
+            mLauncher = null;
         }
-        mAppContext = null;
         QyerReqFactory.clearDefaultParams();
     }
 
-    public static Context getContext() {
-        return mAppContext;
+    public static RequestLauncher getLauncher() {
+        return mLauncher;
     }
 
-    public static RetroRequestQueue getLauncher() {
-        return mReqQueue;
+//    public static Cache getVolleyCache() {
+//        return mLauncher == null ? null : mLauncher.getCache();
+//    }
+
+//    private static RequestQueue.RequestFinishedListener mReqFinishLis = request -> {
+//        if (VolleyLog.DEBUG) {
+//            VolleyLog.d("~~Global monitor # request finished. tag: %s, sequence number: %d", request.getTag(), request.getSequence());
+//        }
+//    };
+
+    public static void setTimeoutMs(int timeoutMs) {
+        mTimeoutMs = timeoutMs;
     }
 
-    public static Cache getVolleyCache() {
-        return mReqQueue == null ? null : mReqQueue.getCache();
+    public static int getTimeoutMs() {
+        return mTimeoutMs;
     }
 
-    private static RequestQueue.RequestFinishedListener mReqFinishLis = request -> {
-        if (VolleyLog.DEBUG) {
-            VolleyLog.d("~~Global monitor # request finished. tag: %s, sequence number: %d", request.getTag(), request.getSequence());
-        }
-    };
+    public static void setRetryCount(int retryCount) {
+        mRetryCount = retryCount;
+    }
+
+    public static int getRetryCount() {
+        return mRetryCount;
+    }
 }
