@@ -101,7 +101,7 @@ public class RequestLauncher {
     /** The cache dispatcher. */
     private CacheDispatcher mCacheDispatcher;
 
-    private List<RequestFinishedListener> mFinishedListeners = new ArrayList<>();
+    private final List<RequestFinishedListener> mFinishedListeners = new ArrayList<>();
 
     /**
      * Creates the worker pool. Processing will not begin until {@link #start()} is called.
@@ -167,9 +167,9 @@ public class RequestLauncher {
         if (mCacheDispatcher != null) {
             mCacheDispatcher.quit();
         }
-        for (int i = 0; i < mNetworkDispatcher.length; i++) {
-            if (mNetworkDispatcher[i] != null) {
-                mNetworkDispatcher[i].quit();
+        for (NetworkDispatcher networkDispatcher : mNetworkDispatcher) {
+            if (networkDispatcher != null) {
+                networkDispatcher.quit();
             }
         }
     }
@@ -186,28 +186,6 @@ public class RequestLauncher {
      */
     public Cache getCache() {
         return mCache;
-    }
-
-    /**
-     * A simple predicate or filter interface for Requests, for use by
-     * {@link RequestLauncher#cancelAll(RequestFilter)}.
-     */
-    public interface RequestFilter {
-        boolean apply(Request<?> request);
-    }
-
-    /**
-     * Cancels all requests in this queue for which the given filter applies.
-     * @param filter The filtering function to use
-     */
-    public void cancelAll(RequestFilter filter) {
-        synchronized (mCurrentRequests) {
-            for (Request<?> request : mCurrentRequests) {
-                if (filter.apply(request)) {
-                    request.cancel();
-                }
-            }
-        }
     }
 
     /**
@@ -359,18 +337,40 @@ public class RequestLauncher {
     }
 
     /**
+     * A simple predicate or filter interface for Requests, for use by
+     * {@link RequestLauncher#abort(RequestFilter)}.
+     */
+    public interface RequestFilter {
+        boolean apply(Request<?> request);
+    }
+
+    /**
+     * Cancels all requests in this queue for which the given filter applies.
+     * @param filter The filtering function to use
+     */
+    public void abort(RequestFilter filter) {
+        synchronized (mCurrentRequests) {
+            for (Request<?> request : mCurrentRequests) {
+                if (filter.apply(request)) {
+                    request.cancel();
+                }
+            }
+        }
+    }
+
+    /**
      * Cancels all requests in this queue with the given tag. Tag must be non-null
      * and equality is by identity.
      */
-    public void cancelLauncher(Object tag) {
+    public void abort(Object tag) {
         if (tag == null) {
             throw new IllegalArgumentException("Cannot cancelAll with a null tag");
         }
-        cancelAll(request -> request.getTag() == tag);
+        abort(request -> request.getTag() == tag);
     }
 
-    public void cancelAllLaunchers() {
-        cancelAll(request -> true);
+    public void abortAll() {
+        abort(request -> true);
     }
 
     public void abort(Request<?> request) {

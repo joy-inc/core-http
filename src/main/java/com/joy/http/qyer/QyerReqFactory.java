@@ -21,7 +21,7 @@ public class QyerReqFactory {
 
     public static Map<String, String> getDefaultParams() {
         Map<String, String> params = new HashMap<>();
-        if (mDefaultParams != null) {
+        if (mDefaultParams != null && !mDefaultParams.isEmpty()) {
             params.putAll(mDefaultParams);
         }
         return params;
@@ -35,7 +35,7 @@ public class QyerReqFactory {
     }
 
     public static Map<String, String> generateParams(Map<String, String> params) {
-        if (mDefaultParams != null) {
+        if (mDefaultParams != null && !mDefaultParams.isEmpty()) {
             params.putAll(mDefaultParams);
         }
         return params;

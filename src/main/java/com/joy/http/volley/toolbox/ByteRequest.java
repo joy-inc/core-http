@@ -119,7 +119,7 @@ public abstract class ByteRequest<T> extends Request<Progress<T>> {
                 mPoster.post(() -> {
                     Progress<T> p = new Progress<>(curProgress);
                     if (mListener != null) {
-                        mListener.onSuccess(p);
+                        mListener.onSuccess(getTag(), p);
                     }
                     mObserver.onNext(p);
                 });

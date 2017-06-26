@@ -5,7 +5,7 @@ package com.joy.http;
  */
 public interface ResponseListener<T> {
 
-    void onSuccess(T t);
+    void onSuccess(Object tag, T t);
 
-    void onError(Throwable error);
+    void onError(Object tag, Throwable error);
 }

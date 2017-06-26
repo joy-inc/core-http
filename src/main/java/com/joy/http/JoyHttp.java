@@ -44,7 +44,7 @@ public class JoyHttp {
     public static void shutDown() {
         if (mLauncher != null) {
 //            mLauncher.removeRequestFinishedListener(mReqFinishLis);
-            mLauncher.cancelAll(request -> true);
+            mLauncher.abortAll();
             mLauncher.stop();
             mLauncher = null;
         }

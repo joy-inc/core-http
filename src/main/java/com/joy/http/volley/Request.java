@@ -38,7 +38,6 @@ import java.util.Map;
 
 import rx.Observable;
 import rx.subjects.PublishSubject;
-import rx.subjects.SerializedSubject;
 
 /**
  * Base class for all network requests.
@@ -119,7 +118,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /** An opaque token tagging this request; used for bulk cancellation. */
     private Object mTag;
 
-    protected SerializedSubject<T, T> mObserver;
+    protected PublishSubject<T> mObserver;
 
     /**
      * Creates a new request with the given method (one of the values from {@link Method}),
@@ -135,7 +134,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 
 //        mDefaultTrafficStatsTag = findDefaultTrafficStatsTag(url);
 
-        mObserver = new SerializedSubject<>(PublishSubject.<T>create());
+        mObserver = PublishSubject.create();
     }
 
     /**
@@ -154,7 +153,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 
     /**
      * Set a tag on this request. Can be used to cancel all requests with this
-     * tag by {@link RequestLauncher#cancelLauncher(Object)}.
+     * tag by {@link RequestLauncher#abort(Object)}.
      *
      * @return This Request object to allow for chaining.
      */
@@ -238,7 +237,6 @@ public abstract class Request<T> implements Comparable<Request<T>> {
                 });
                 return;
             }
-
             mEventLog.add(tag, threadName);
             mEventLog.finish(this.toString());
         }
@@ -526,7 +524,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      */
     protected void deliverResponse(T t) {
         if (mListener != null) {
-            mListener.onSuccess(t);
+            mListener.onSuccess(mTag, t);
         }
         mObserver.onNext(t);
         if (isFinalResponse()) {
@@ -542,7 +540,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      */
     public void deliverError(Throwable e) {
         if (mListener != null) {
-            mListener.onError(e);
+            mListener.onError(mTag, e);
         }
         mObserver.onError(e);
     }

@@ -77,4 +77,13 @@ public class JoyError extends Exception {
     public boolean isCancelCaused() {
         return isCancelCaused;
     }
+
+    @Override
+    public String toString() {
+        return "JoyError{" +
+                "type=" + mType +
+                ", statusCode=" + mStatusCode +
+                ", isCancelCaused=" + isCancelCaused +
+                '}';
+    }
 }
