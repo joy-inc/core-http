@@ -28,9 +28,9 @@ public abstract class JsonRequest<T> extends Request<T> {
     /** Default charset for JSON request. */
     protected static final String PROTOCOL_CHARSET = "UTF-8";
 
-//    /** Content type for request. */
-//    private static final String PROTOCOL_CONTENT_TYPE =
-//        String.format("application/json; charset=%s", PROTOCOL_CHARSET);
+    /** Content type for request. */
+    private static final String PROTOCOL_CONTENT_TYPE =
+        String.format("application/json; charset=%s", PROTOCOL_CHARSET);
 
     public JsonRequest(Method method, String url) {
         super(method, url);
@@ -41,8 +41,8 @@ public abstract class JsonRequest<T> extends Request<T> {
         return PROTOCOL_CHARSET;
     }
 
-//    @Override
-//    public String getBodyContentType() {
-//        return PROTOCOL_CONTENT_TYPE;
-//    }
+    @Override
+    public String getBodyContentType() {
+        return PROTOCOL_CONTENT_TYPE;
+    }
 }

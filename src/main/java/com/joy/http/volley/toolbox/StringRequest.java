@@ -16,6 +16,7 @@
 
 package com.joy.http.volley.toolbox;
 
+import com.joy.http.volley.Request;
 import com.joy.http.volley.Response;
 import com.joy.http.volley.Result;
 import com.joy.http.volley.ServerError;
@@ -25,13 +26,13 @@ import java.io.IOException;
 /**
  * A canned request for retrieving the response body at a given URL as a String.
  */
-public class StringRequest extends JsonRequest<String> {
+public class StringRequest extends Request<String> {
 
     /**
      * Creates a new request with the given method.
      *
      * @param method the request {@link Method} to use
-     * @param url URL to fetch the string at
+     * @param url    URL to fetch the string at
      */
     public StringRequest(Method method, String url) {
         super(method, url);
