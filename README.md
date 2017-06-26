@@ -7,7 +7,7 @@ Android网络请求库
 Gradle:
 
 ```
-compile 'com.joy.http:JoyHttp:0.2.0'
+compile 'com.joy.http:JoyHttp:0.2.1'
 ```
 
 Maven:
@@ -16,7 +16,7 @@ Maven:
 <dependency>
   <groupId>com.joy.http</groupId>
   <artifactId>JoyHttp</artifactId>
-  <version>0.2.0</version>
+  <version>0.2.1</version>
   <type>pom</type>
 </dependency>
 ```
