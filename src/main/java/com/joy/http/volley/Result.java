@@ -23,21 +23,6 @@ package com.joy.http.volley;
  */
 public class Result<T> {
 
-//    /** Callback interface for delivering parsed responses. */
-//    public interface Listener<T> {
-//        /** Called when a response is received. */
-//        void onResponse(T t);
-//    }
-
-//    /** Callback interface for delivering error responses. */
-//    public interface ErrorListener {
-//        /**
-//         * Callback method that an error has been occurred with the
-//         * provided error code and optional user-readable message.
-//         */
-//        void onErrorResponse(VolleyError error);
-//    }
-
     /** Returns a successful response containing the parsed result. */
     public static <T> Result<T> success(T result) {
         return new Result<>(result);
@@ -54,14 +39,8 @@ public class Result<T> {
     /** Parsed response, or null in the case of error. */
     public final T result;
 
-//    /** Cache metadata for this response, or null in the case of error. */
-//    public final Cache.Entry cacheEntry;
-
     /** Detailed error information if <code>errorCode != OK</code>. */
     public final Throwable error;
-
-//    /** True if this response was a soft-expired one and a second one MAY be coming. */
-//    public boolean intermediate = false;
 
     /**
      * Returns whether this response is considered successful.
@@ -72,13 +51,11 @@ public class Result<T> {
 
     private Result(T result) {
         this.result = result;
-//        this.cacheEntry = cacheEntry;
         this.error = null;
     }
 
     private Result(Throwable error) {
         this.result = null;
-//        this.cacheEntry = null;
         this.error = error;
     }
 }

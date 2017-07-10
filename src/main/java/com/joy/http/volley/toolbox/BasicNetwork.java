@@ -56,30 +56,14 @@ import static com.joy.http.JoyError.TYPE_HTTP;
 public class BasicNetwork implements Network {
     private static int SLOW_REQUEST_THRESHOLD_MS = 3000;
 
-//    private static int DEFAULT_POOL_SIZE = 4096;
-
     protected final HttpStack mHttpStack;
-
-//    protected final ByteArrayPool mPool;
 
     /**
      * @param httpStack HTTP stack to be used
      */
     public BasicNetwork(HttpStack httpStack) {
-        // If a pool isn't passed in, then build a small default pool that will give us a lot of
-        // benefit and not use too much memory.
-//        this(httpStack, new ByteArrayPool(DEFAULT_POOL_SIZE));
         mHttpStack = httpStack;
     }
-
-//    /**
-//     * @param httpStack HTTP stack to be used
-//     * @param pool a buffer pool that improves GC performance in copy operations
-//     */
-//    public BasicNetwork(HttpStack httpStack, ByteArrayPool pool) {
-//        mHttpStack = httpStack;
-//        mPool = pool;
-//    }
 
     @Override
     public NetworkResponse performRequest(Request<?> request) throws JoyError {
@@ -87,7 +71,6 @@ public class BasicNetwork implements Network {
         while (true) {
             HttpResponse httpResponse = null;
             int statusCode = 0;
-//            byte[] responseContents = null;
             HttpEntity entity = null;
             Map<String, String> responseHeaders = Collections.emptyMap();
             try {
@@ -126,14 +109,6 @@ public class BasicNetwork implements Network {
                 }
 
                 entity = httpResponse.getEntity();
-//                // Some responses such as 204s do not have content.  We must check.
-//                if (httpResponse.getEntity() != null) {
-//                  responseContents = entityToBytes(httpResponse.getEntity());
-//                } else {
-//                  // Add 0 byte response as a way of honestly representing a
-//                  // no-content request.
-//                  responseContents = new byte[0];
-//                }
 
                 // if the request is slow, log it.
                 if (VolleyLog.DEBUG) {
@@ -160,8 +135,6 @@ public class BasicNetwork implements Network {
                 	VolleyLog.e("Unexpected response code %d for %s", statusCode, request.getUrl());
                 }
                 if (entity != null) {
-//                    NetworkResponse networkResponse = new NetworkResponse(statusCode, entity.getContent(), entity.getContentLength(),
-//                            responseHeaders, false, SystemClock.elapsedRealtime() - requestStart);
                     if (statusCode == HttpStatus.SC_UNAUTHORIZED ||
                             statusCode == HttpStatus.SC_FORBIDDEN) {
                         attemptRetryOnException("auth", request, new AuthFailureError(TYPE_HTTP, statusCode, e));

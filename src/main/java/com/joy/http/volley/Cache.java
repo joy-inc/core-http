@@ -35,9 +35,7 @@ public interface Cache {
     /**
      * Adds or replaces an entry to the cache.
      * @param key Cache key
-//     * @param entry Data to store and metadata for cache coherency, TTL, etc.
      */
-//    void put(String key, Entry entry);
     void put(String key);
 
     /**
@@ -45,13 +43,6 @@ public interface Cache {
      * will be called from a worker thread.
      */
     void initialize();
-
-//    /**
-//     * Invalidates an entry in the cache.
-//     * @param key Cache key
-//     * @param fullExpire True to fully expire the entry, false to soft expire
-//     */
-//    void invalidate(String key, boolean fullExpire);
 
     /**
      * Removes an entry from the cache.
@@ -73,7 +64,6 @@ public interface Cache {
      */
     class Entry {
         /** The data returned from cache. */
-//        public byte[] data;
         public InputStream data;
 
         public long contentLength;

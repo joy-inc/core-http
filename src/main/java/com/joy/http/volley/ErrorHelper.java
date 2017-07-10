@@ -39,9 +39,6 @@ public class ErrorHelper {
             errorMsg = appContext != null ? appContext.getString(R.string.no_internet) : "No internet";
         } else if (error instanceof RedirectError) {
             errorMsg = appContext != null ? appContext.getString(R.string.redirect_error) : "Redirect Error";
-        } else {
-//            errorMsg = error.getMessage();
-//            errorMsg = "";
         }
         return errorMsg;
     }

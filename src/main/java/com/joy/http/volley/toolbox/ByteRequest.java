@@ -89,7 +89,6 @@ public abstract class ByteRequest<T> extends Request<Progress<T>> {
                 }
                 count += n;
                 postResult(contentLength, count);
-//                Log.e("daisw", "====" + count);
             }
             bis.close();
             if (bos != null) {

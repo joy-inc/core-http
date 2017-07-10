@@ -95,7 +95,6 @@ public class ExecutorDelivery implements ResponseDelivery {
                 JoyError e = new JoyError("the request has been canceled.");
                 e.setCancelCaused(true);
                 mRequest.deliverError(e);
-//                mRequest.finish("canceled-at-delivery");
                 mRequest.finish("done");
                 return;
             }

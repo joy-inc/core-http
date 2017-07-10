@@ -141,7 +141,9 @@ public class ImageRequest extends ByteRequest<Bitmap> {
 
     @Override
     protected Result<Progress<Bitmap>> parseNetworkResponse(Response response) {
-        Log.i("daisw", "ImageRequest ## contentLength: " + response.contentLength);
+        if (VolleyLog.DEBUG) {
+            Log.i(VolleyLog.TAG, "ImageRequest ## contentLength: " + response.contentLength);
+        }
         // Serialize all decode on a global lock to reduce concurrent heap usage.
         synchronized (sDecodeLock) {
             try {
@@ -174,11 +176,15 @@ public class ImageRequest extends ByteRequest<Bitmap> {
                 e.printStackTrace();
                 return Result.error(e);
             }
-            Log.i("daisw", "=====Time: " + (System.currentTimeMillis() - startTime) + "ms");
+            if (VolleyLog.DEBUG) {
+                Log.i(VolleyLog.TAG, "ImageRequest ## spent time: " + (System.currentTimeMillis() - startTime) + "ms");
+            }
             if (dataByteArray == null) {
                 return Result.error(new NullPointerException("the byte array of image data is null."));
             }
-            Log.i("daisw", "======Size: " + dataByteArray.length);
+            if (VolleyLog.DEBUG) {
+                Log.i(VolleyLog.TAG, "ImageRequest ## size: " + dataByteArray.length);
+            }
             // If we have to resize this image, first get the natural bounds.
             decodeOptions.inJustDecodeBounds = true;
             BitmapFactory.decodeByteArray(dataByteArray, 0, dataByteArray.length, decodeOptions);

@@ -153,7 +153,6 @@ public class RequestLauncher {
         // Create network dispatchers (and corresponding threads) up to the pool size.
         for (int i = 0; i < mNetworkDispatcher.length; i++) {
             NetworkDispatcher networkDispatcher = new NetworkDispatcher(mNetworkQueue, mNetwork,
-//                    mCache,
                     mDelivery);
             mNetworkDispatcher[i] = networkDispatcher;
             networkDispatcher.start();
@@ -205,7 +204,6 @@ public class RequestLauncher {
         request.addMarker("add-to-queue");
 
         // If the request is uncacheable, skip the cache queue and go straight to the network.
-//        if (!request.shouldCache()) {
         LaunchMode launchMode = request.getLaunchMode();
         if (launchMode == LaunchMode.REFRESH_ONLY || launchMode == LaunchMode.REFRESH_AND_CACHE) {
             mNetworkQueue.add(request);
@@ -252,7 +250,6 @@ public class RequestLauncher {
                 listener.onRequestFinished(request);
             }
         }
-//        if (request.shouldCache()) {
         if (request.getLaunchMode() != LaunchMode.REFRESH_ONLY) {
             synchronized (mWaitingRequests) {
                 String cacheKey = request.getCacheKey();

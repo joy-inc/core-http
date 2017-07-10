@@ -3,6 +3,7 @@ package com.joy.http;
 import android.content.Context;
 
 import com.joy.http.qyer.QyerReqFactory;
+import com.joy.http.volley.Request;
 import com.joy.http.volley.RequestLauncher;
 import com.joy.http.volley.VolleyLog;
 import com.joy.http.volley.toolbox.Volley;
@@ -55,10 +56,6 @@ public class JoyHttp {
         return mLauncher;
     }
 
-//    public static Cache getVolleyCache() {
-//        return mLauncher == null ? null : mLauncher.getCache();
-//    }
-
 //    private static RequestQueue.RequestFinishedListener mReqFinishLis = request -> {
 //        if (VolleyLog.DEBUG) {
 //            VolleyLog.d("~~Global monitor # request finished. tag: %s, sequence number: %d", request.getTag(), request.getSequence());
@@ -79,5 +76,38 @@ public class JoyHttp {
 
     public static int getRetryCount() {
         return mRetryCount;
+    }
+
+    /**
+     * Cancels all requests in this queue for which the given filter applies.
+     *
+     * @param filter The filtering function to use
+     */
+    public static void abort(RequestLauncher.RequestFilter filter) {
+        if (mLauncher != null) {
+            mLauncher.abort(filter);
+        }
+    }
+
+    /**
+     * Cancels all requests in this queue with the given tag. Tag must be non-null
+     * and equality is by identity.
+     */
+    public static void abort(Object tag) {
+        if (mLauncher != null) {
+            mLauncher.abort(tag);
+        }
+    }
+
+    public static void abortAll() {
+        if (mLauncher != null) {
+            mLauncher.abortAll();
+        }
+    }
+
+    public static void abort(Request<?> request) {
+        if (mLauncher != null) {
+            mLauncher.abort(request);
+        }
     }
 }

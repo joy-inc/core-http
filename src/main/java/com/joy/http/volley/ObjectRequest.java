@@ -8,7 +8,6 @@ import com.joy.http.utils.ParamsUtil;
 import com.joy.http.volley.toolbox.JsonRequest;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * Created by KEVIN.DAI on 15/7/10.
@@ -16,7 +15,6 @@ import java.util.Map;
 public class ObjectRequest<T> extends JsonRequest<T> {
 
     private Class<?> mClazz;
-    private Map<String, String> mHeaders, mParams;
     private String mCacheKey;
 
     /**
@@ -29,30 +27,6 @@ public class ObjectRequest<T> extends JsonRequest<T> {
     public ObjectRequest(Method method, String url, Class<?> clazz) {
         super(method, url);
         mClazz = clazz;
-    }
-
-    public void setHeaders(Map<String, String> headers) {
-        mHeaders = headers;
-    }
-
-    public void setParams(Map<String, String> params) {
-        mParams = params;
-    }
-
-    @Override
-    public Map<String, String> getHeaders() throws AuthFailureError {
-        if (mHeaders != null && !mHeaders.isEmpty()) {
-            return mHeaders;
-        }
-        return super.getHeaders();
-    }
-
-    @Override
-    protected Map<String, String> getParams() throws AuthFailureError {
-        if (mParams != null && !mParams.isEmpty()) {
-            return mParams;
-        }
-        return null;
     }
 
     @Override
@@ -71,9 +45,15 @@ public class ObjectRequest<T> extends JsonRequest<T> {
 
     @Override
     public Result<T> parseNetworkResponse(Response response) {
-        Log.e("daisw", "ObjectRequest ## contentLength: " + response.contentLength);
+        if (VolleyLog.DEBUG) {
+            Log.i(VolleyLog.TAG, "ObjectRequest ## contentLength: " + response.contentLength);
+        }
         try {
+            long startTime = System.currentTimeMillis();
             String json = toString(response);
+            if (VolleyLog.DEBUG) {
+                Log.i(VolleyLog.TAG, "ObjectRequest ## spent time: " + (System.currentTimeMillis() - startTime) + "ms");
+            }
             if (json == null) {
                 return Result.error(new NullPointerException("the json string is null."));
             }
@@ -113,14 +93,6 @@ public class ObjectRequest<T> extends JsonRequest<T> {
         t = null;
         mClazz = null;
         mCacheKey = null;
-        if (mHeaders != null) {
-            mHeaders.clear();
-            mHeaders = null;
-        }
-        if (mParams != null) {
-            mParams.clear();
-            mParams = null;
-        }
     }
 
     // --- for test data ---

@@ -27,6 +27,10 @@ public class QyerReqFactory {
         return params;
     }
 
+    public static boolean isDefaultParamsEmpty() {
+        return mDefaultParams == null || mDefaultParams.isEmpty();
+    }
+
     public static void clearDefaultParams() {
         if (mDefaultParams != null) {
             mDefaultParams.clear();

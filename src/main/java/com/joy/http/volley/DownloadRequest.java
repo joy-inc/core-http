@@ -47,7 +47,9 @@ public class DownloadRequest extends ByteRequest<File> {
 
     @Override
     protected Result<Progress<File>> parseNetworkResponse(Response response) {
-        Log.i("daisw", "DownloadRequest ## contentLength: " + response.contentLength);
+        if (VolleyLog.DEBUG) {
+            Log.i(VolleyLog.TAG, "DownloadRequest ## contentLength: " + response.contentLength);
+        }
         byte[] dataByteArray;
         long startTime = System.currentTimeMillis();
         try {
@@ -59,11 +61,15 @@ public class DownloadRequest extends ByteRequest<File> {
             e.printStackTrace();
             return Result.error(e);
         }
-        Log.i("daisw", "=====Time: " + (System.currentTimeMillis() - startTime) + "ms");
+        if (VolleyLog.DEBUG) {
+            Log.i(VolleyLog.TAG, "DownloadRequest ## spent time: " + (System.currentTimeMillis() - startTime) + "ms");
+        }
         if (dataByteArray == null) {
             return Result.error(new NullPointerException("the byte array of image data is null."));
         }
-        Log.i("daisw", "======Size: " + dataByteArray.length);
+        if (VolleyLog.DEBUG) {
+            Log.i(VolleyLog.TAG, "DownloadRequest ## size: " + dataByteArray.length);
+        }
         return Result.success(new Progress<>(mStorageFile));
     }
 }

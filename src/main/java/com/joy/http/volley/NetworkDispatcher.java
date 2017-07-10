@@ -35,8 +35,6 @@ public class NetworkDispatcher extends Thread {
     private final BlockingQueue<Request<?>> mQueue;
     /** The network interface for processing requests. */
     private final Network mNetwork;
-//    /** The cache to write to. */
-//    private final Cache mCache;
     /** For posting responses and errors. */
     private final ResponseDelivery mDelivery;
     /** Used for telling us to die. */
@@ -48,15 +46,12 @@ public class NetworkDispatcher extends Thread {
      *
      * @param queue Queue of incoming requests for triage
      * @param network Network interface to use for performing requests
-//     * @param cache Cache interface to use for writing responses to cache
      * @param delivery Delivery interface to use for posting responses
      */
     public NetworkDispatcher(BlockingQueue<Request<?>> queue,
-//                             Cache cache,
                              Network network, ResponseDelivery delivery) {
         mQueue = queue;
         mNetwork = network;
-//        mCache = cache;
         mDelivery = delivery;
     }
 
@@ -105,7 +100,6 @@ public class NetworkDispatcher extends Thread {
 
                 // If the request was canceled already, do not perform the network request.
                 if (request.isCanceled()) {
-//                    request.finish("network-discard-canceled");
                     request.addMarker("network-discard-canceled");
                     mDelivery.postError(request, null);
                     continue;
@@ -127,13 +121,6 @@ public class NetworkDispatcher extends Thread {
                 // Parse the response here on the worker thread.
                 Result<?> response = request.parseNetworkResponse(networkResponse);
                 request.addMarker("network-parse-complete");
-
-//                // Write to cache if applicable.
-//                // TODO: Only update cache metadata instead of entire record for 304s.
-//                if (request.shouldCache() && response.cacheEntry != null) {
-//                    mCache.put(request.getCacheKey(), response.cacheEntry);
-//                    request.addMarker("network-cache-written");
-//                }
 
                 if (request.isCanceled()) {
                     request.addMarker("network-discard-canceled");

@@ -8,6 +8,7 @@ import com.joy.http.volley.ObjectRequest;
 import com.joy.http.volley.Response;
 import com.joy.http.volley.Result;
 import com.joy.http.volley.ServerError;
+import com.joy.http.volley.VolleyLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,11 +29,15 @@ public class QyerRequest<T> extends ObjectRequest<T> {
 
     @Override
     public Result<T> parseNetworkResponse(Response response) {
-        Log.e("daisw", "QyerRequest ## contentLength: " + response.contentLength);
+        if (VolleyLog.DEBUG) {
+            Log.i(VolleyLog.TAG, "QyerRequest ## contentLength: " + response.contentLength);
+        }
         try {
             long startTime = System.currentTimeMillis();
             String json = toString(response);
-            Log.i("daisw", "=====Time: " + (System.currentTimeMillis() - startTime) + "ms");
+            if (VolleyLog.DEBUG) {
+                Log.i(VolleyLog.TAG, "QyerRequest ## spent time: " + (System.currentTimeMillis() - startTime) + "ms");
+            }
             if (json == null) {
                 return Result.error(new NullPointerException("the json string is null."));
             }
@@ -62,9 +67,6 @@ public class QyerRequest<T> extends ObjectRequest<T> {
     }
 
     protected QyerResponse<T> onResponse(String json) throws JSONException, IllegalAccessException, InstantiationException {
-//        if (VolleyLog.DEBUG) {
-//            VolleyLog.d("~~onResponse # json: %s", json);
-//        }
         QyerResponse<T> resp = new QyerResponse();
         if (TextUtils.isEmpty(json)) {
             return resp;

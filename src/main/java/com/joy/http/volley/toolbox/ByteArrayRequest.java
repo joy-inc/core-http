@@ -6,6 +6,7 @@ import com.joy.http.Progress;
 import com.joy.http.volley.Response;
 import com.joy.http.volley.Result;
 import com.joy.http.volley.ServerError;
+import com.joy.http.volley.VolleyLog;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +32,9 @@ public class ByteArrayRequest extends ByteRequest<byte[]> {
 
     @Override
     protected Result<Progress<byte[]>> parseNetworkResponse(Response response) {
-        Log.i("daisw", "ImageRequest ## contentLength: " + response.contentLength);
+        if (VolleyLog.DEBUG) {
+            Log.i(VolleyLog.TAG, "ByteArrayRequest ## contentLength: " + response.contentLength);
+        }
         byte[] dataByteArray;
         long startTime = System.currentTimeMillis();
         try {
@@ -43,11 +46,15 @@ public class ByteArrayRequest extends ByteRequest<byte[]> {
             e.printStackTrace();
             return Result.error(e);
         }
-        Log.i("daisw", "=====Time: " + (System.currentTimeMillis() - startTime) + "ms");
+        if (VolleyLog.DEBUG) {
+            Log.i(VolleyLog.TAG, "ByteArrayRequest ## spent time: " + (System.currentTimeMillis() - startTime) + "ms");
+        }
         if (dataByteArray == null) {
             return Result.error(new NullPointerException("the byte array of image data is null."));
         }
-        Log.i("daisw", "======Size: " + dataByteArray.length);
+        if (VolleyLog.DEBUG) {
+            Log.i(VolleyLog.TAG, "ByteArrayRequest ## size: " + dataByteArray.length);
+        }
         return Result.success(new Progress<>(dataByteArray));
     }
 }

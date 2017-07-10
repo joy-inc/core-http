@@ -83,6 +83,7 @@ public class JoyError extends Exception {
         return "JoyError{" +
                 "type=" + mType +
                 ", statusCode=" + mStatusCode +
+                ", msg=" + getMessage() +
                 ", isCancelCaused=" + isCancelCaused +
                 '}';
     }

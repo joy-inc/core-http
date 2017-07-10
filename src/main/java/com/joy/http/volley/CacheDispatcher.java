@@ -105,7 +105,6 @@ public class CacheDispatcher extends Thread {
 
                 // If the request has been canceled, don't bother dispatching it.
                 if (request.isCanceled()) {
-//                    request.finish("cache-discard-canceled");
                     request.addMarker("network-discard-canceled");
                     mDelivery.postError(request, null);
                     continue;
@@ -127,22 +126,12 @@ public class CacheDispatcher extends Thread {
                     continue;
                 }
 
-//                // If it is completely expired, just send it to the network.
-////                if (entry.isExpired()) {
-//                if (request.isExpired()) {
-//                    request.addMarker("cache-hit-expired");
-//                    request.setCacheEntry(entry);
-//                    mNetworkQueue.put(request);
-//                    continue;
-//                }
-
                 // We have a cache hit; parse its data for delivery back to the request.
                 request.addMarker("cache-hit");
                 Result<?> response = request.parseNetworkResponse(
                         new CacheResponse(entry.data, entry.contentLength));
                 request.addMarker("cache-hit-parsed");
 
-//                if (!entry.refreshNeeded()) {
                 if (launchMode == LaunchMode.CACHE_OR_REFRESH) {
                     // Completely unexpired cache hit. Just deliver the response.
                     mDelivery.postResponse(request, response);

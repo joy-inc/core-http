@@ -25,14 +25,16 @@ import com.joy.http.LaunchMode;
 import com.joy.http.ResponseListener;
 import com.joy.http.volley.VolleyLog.MarkerLog;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
 
@@ -77,6 +79,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 
     /** URL of this request. */
     private final String mUrl;
+    protected Map<String, String> mHeaders, mParams;
 
     /** The redirect url to use for 3xx http responses */
     private String mRedirectUrl;
@@ -95,9 +98,6 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 
     /** The request queue this request is associated with. */
     private RequestLauncher mLauncher;
-
-//    /** Whether or not responses to this request should be cached. */
-//    private boolean mShouldCache = false;
 
     /** Whether or not this request has been canceled. */
     private boolean mCanceled = false;
@@ -247,6 +247,14 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      */
     protected void onFinish() {
         mListener = null;
+        if (mHeaders != null) {
+            mHeaders.clear();
+            mHeaders = null;
+        }
+        if (mParams != null) {
+            mParams.clear();
+            mParams = null;
+        }
     }
 
     /**
@@ -347,6 +355,14 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         return mCanceled;
     }
 
+    public void setHeaders(Map<String, String> headers) {
+        mHeaders = headers;
+    }
+
+    public void setParams(Map<String, String> params) {
+        mParams = params;
+    }
+
     /**
      * Returns a list of extra HTTP headers to go along with this request. Can
      * throw {@link AuthFailureError} as authentication may be required to
@@ -354,6 +370,9 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * @throws AuthFailureError In the event of auth failure
      */
     public Map<String, String> getHeaders() throws AuthFailureError {
+        if (mHeaders != null && !mHeaders.isEmpty()) {
+            return mHeaders;
+        }
         return Collections.emptyMap();
     }
 
@@ -366,6 +385,9 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * @throws AuthFailureError in the event of auth failure
      */
     protected Map<String, String> getParams() throws AuthFailureError {
+        if (mParams != null && !mParams.isEmpty()) {
+            return mParams;
+        }
         return null;
     }
 
@@ -426,23 +448,6 @@ public abstract class Request<T> implements Comparable<Request<T>> {
             throw new RuntimeException("Encoding not supported: " + paramsEncoding, e);
         }
     }
-
-//    /**
-//     * Set whether or not responses to this request should be cached.
-//     *
-//     * @return This Request object to allow for chaining.
-//     */
-//    public final Request<?> setShouldCache(boolean shouldCache) {
-//        mShouldCache = shouldCache;
-//        return this;
-//    }
-//
-//    /**
-//     * Returns true if responses to this request should be cached.
-//     */
-//    public final boolean shouldCache() {
-//        return mShouldCache;
-//    }
 
     /**
      * Priority values.  Requests will be processed from higher priorities to
@@ -605,70 +610,48 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         if (is == null) {
             throw new ServerError();
         }
-//        Charset encoding;
-//        try {
-//            String charsetName = HttpHeaderParser.parseCharset(response.headers);
-//            encoding = Charset.forName(charsetName);
-//        } catch (UnsupportedCharsetException e) {
-//            e.printStackTrace();
-//            encoding = Charset.defaultCharset();
-//        }
-//        InputStreamReader isr = new InputStreamReader(is, encoding);
-        BufferedInputStream bis = new BufferedInputStream(is);
+        BufferedReader br = new BufferedReader(new InputStreamReader(is, Charset.defaultCharset()));
         StringBuilder sb = new StringBuilder();
-        byte[] buffer = new byte[4096];// 4k
+        char[] buffer = new char[4096];// 4k
         int n;
-//        long count = 0L;
 
         if (response instanceof NetworkResponse) {
             final String cacheKey = getCacheKey();
-            BufferedOutputStream bos = null;
+            BufferedWriter bw = null;
             if (mLaunchMode != LaunchMode.REFRESH_ONLY) {
                 File file = mLauncher.getCache().getFileForKey(cacheKey);
                 if (file != null) {
-                    bos = new BufferedOutputStream(new FileOutputStream(file));
+                    bw = new BufferedWriter(new FileWriter(file));
                 }
             }
-//            Cache.Entry cacheEntry = HttpHeaderParser.parseCacheHeaders(response);
-//            DiskBasedCache.CacheHeader cacheHeader = new DiskBasedCache.CacheHeader(cacheKey, cacheEntry);
-//            boolean success = cacheHeader.writeHeader(osw);
-//            if (!success) {
-//                osw.close();
-//                VolleyLog.d("Failed to write header for %s", file.getAbsolutePath());
-//                throw new IOException();
-//            }
-            while ((n = bis.read(buffer)) != -1) {
+            while ((n = br.read(buffer)) != -1) {
                 if (mCanceled) {
-                    bis.close();
-                    if (bos != null) {
-                        bos.close();
+                    br.close();
+                    if (bw != null) {
+                        bw.close();
                     }
                     return null;
                 }
                 sb.append(new String(buffer, 0, n));
-                if (bos != null) {
-                    bos.write(buffer, 0, n);
+                if (bw != null) {
+                    bw.write(buffer, 0, n);
                 }
-//                count += n;
-//                Log.e("daisw", "====" + count);
             }
-            bis.close();
-            if (bos != null) {
-                bos.close();
+            br.close();
+            if (bw != null) {
+                bw.close();
                 mLauncher.getCache().put(cacheKey);
                 addMarker("network-cache-written");
             }
         } else {// CacheResponse
-            while ((n = bis.read(buffer)) != -1) {
+            while ((n = br.read(buffer)) != -1) {
                 if (mCanceled) {
-                    bis.close();
+                    br.close();
                     return null;
                 }
                 sb.append(new String(buffer, 0, n));
-//                count += n;
-//                Log.e("daisw", "====" + count);
             }
-            bis.close();
+            br.close();
         }
         return sb.toString();
     }

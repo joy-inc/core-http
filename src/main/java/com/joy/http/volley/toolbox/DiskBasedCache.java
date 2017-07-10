@@ -17,7 +17,6 @@
 package com.joy.http.volley.toolbox;
 
 import android.os.SystemClock;
-import android.util.Log;
 
 import com.joy.http.volley.Cache;
 import com.joy.http.volley.VolleyLog;
@@ -111,27 +110,6 @@ public class DiskBasedCache implements Cache {
      */
     @Override
     public synchronized Entry get(String key) {
-//        CacheHeader entry = mEntries.get(key);
-//        // if the entry does not exist, return.
-//        if (entry == null) {
-//            return null;
-//        }
-//        File file = getFileForKey(key);
-//        try {
-//            CountingInputStream cis = new CountingInputStream(new BufferedInputStream(new FileInputStream(file)));
-//            CacheHeader.readHeader(cis); // eat header
-////            byte[] data = streamToBytes(cis, (int) (file.length() - cis.bytesRead));
-//            return entry.toCacheEntry(cis, file.length() - cis.bytesRead);
-//        } catch (IOException e) {
-//            VolleyLog.d("%s: %s", file.getAbsolutePath(), e.toString());
-//            remove(key);
-//            return null;
-//        } catch (NegativeArraySizeException e) {
-//            VolleyLog.d("%s: %s", file.getAbsolutePath(), e.toString());
-//            remove(key);
-//            return null;
-//        }
-
         File file = getFileForKey(key);
         if (file == null || !file.exists()) {
             return null;
@@ -162,35 +140,9 @@ public class DiskBasedCache implements Cache {
         File[] files = mRootDirectory.listFiles();
         if (files != null) {
             for (File f : files) {
-                Log.e("daisw", "~~~file name: " + f.getName());
                 mCacheFileNames.add(f.getName());
             }
         }
-
-//        File[] files = mRootDirectory.listFiles();
-//        if (files == null) {
-//            return;
-//        }
-//        for (File file : files) {
-//            BufferedInputStream fis = null;
-//            try {
-//                fis = new BufferedInputStream(new FileInputStream(file));
-//                CacheHeader entry = CacheHeader.readHeader(fis);
-//                entry.size = file.length();
-//                putEntry(entry.key, entry);
-//            } catch (IOException e) {
-//                if (file != null) {
-//                    file.delete();
-//                }
-//            } finally {
-//                try {
-//                    if (fis != null) {
-//                        fis.close();
-//                    }
-//                } catch (IOException ignored) {
-//                }
-//            }
-//        }
     }
 
     @Override
@@ -199,68 +151,11 @@ public class DiskBasedCache implements Cache {
         return mCacheFileNames.contains(fileName);
     }
 
-//    /**
-//     * Invalidates an entry in the cache.
-//     *
-//     * @param key Cache key
-//     * @param fullExpire True to fully expire the entry, false to soft expire
-//     */
-//    @Override
-//    public synchronized void invalidate(String key, boolean fullExpire) {
-//        Entry entry = get(key);
-//        if (entry != null) {
-//            entry.softTtl = 0;
-//            if (fullExpire) {
-//                entry.ttl = 0;
-//            }
-//            put(key, entry);
-//        }
-//    }
-
     /**
      * Puts the entry with the specified key into the cache.
      */
     @Override
-//    public synchronized void put(String key, Entry entry) {
     public synchronized void put(String key) {
-//        byte[] data = null;
-//        try {
-//            data = streamToBytes(entry.data, (int) entry.contentLength);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                entry.data.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        if (data == null) {
-//            return;
-//        }
-//        pruneIfNeeded(data.length);
-//        File file = getFileForKey(key);
-//        try {
-//            BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(file));
-//            CacheHeader e = new CacheHeader(key, entry);
-//            boolean success = e.writeHeader(fos);
-//            if (!success) {
-//                fos.close();
-//                VolleyLog.d("Failed to write header for %s", file.getAbsolutePath());
-//                throw new IOException();
-//            }
-//            fos.write(data);
-//            fos.close();
-//            putEntry(key, e);
-//            return;
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        boolean deleted = file.delete();
-//        if (!deleted) {
-//            VolleyLog.d("Could not clean up file %s", file.getAbsolutePath());
-//        }
-
         String fileName = getFilenameForKey(key);
         mCacheFileNames.add(fileName);
     }
