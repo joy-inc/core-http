@@ -78,6 +78,10 @@ public class JoyHttp {
         return mRetryCount;
     }
 
+    public static boolean isRequestLaunched(Object tag) {
+        return mLauncher != null && mLauncher.isLaunched(tag);
+    }
+
     /**
      * Cancels all requests in this queue for which the given filter applies.
      *

@@ -282,6 +282,17 @@ public class RequestLauncher {
         }
     }
 
+    public boolean isLaunched(Object tag) {
+        synchronized (mCurrentRequests) {
+            for (Request<?> request : mCurrentRequests) {
+                if (request.getTag() == tag) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * fetch net-->response.
      */

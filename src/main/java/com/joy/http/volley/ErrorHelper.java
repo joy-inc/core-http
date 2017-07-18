@@ -21,24 +21,31 @@ public class ErrorHelper {
      * 过滤error的类型，返回相应的提示，如未被命中则返回空串。
      *
      * @param appContext
-     * @param error
+     * @param throwable
      * @return Return generic message for errors
      */
-    public static String getErrorType(Context appContext, Throwable error) {
-        String errorMsg = "";
-        if (error == null) {
-            return errorMsg;
+    public static String getErrorType(Context appContext, Throwable throwable) {
+        return getErrorType(appContext, throwable, null);
+    }
+
+    public static String getErrorType(Context appContext, Throwable throwable, String defErrorMsg) {
+        if (throwable == null) {
+            return defErrorMsg == null ? "" : defErrorMsg;
         }
-        if (error instanceof TimeoutError) {
+        String errorMsg;
+        if (throwable instanceof TimeoutError) {
             errorMsg = appContext != null ? appContext.getString(R.string.generic_server_timeout) : "Server Timeout";
-        } else if (error instanceof ServerError) {
+        } else if (throwable instanceof ServerError) {
             errorMsg = appContext != null ? appContext.getString(R.string.generic_server_down) : "Server down";
-        } else if (error instanceof AuthFailureError) {
+        } else if (throwable instanceof AuthFailureError) {
             errorMsg = appContext != null ? appContext.getString(R.string.auth_failed) : "Authentication Failure";
-        } else if (error instanceof NetworkError) {
+        } else if (throwable instanceof NetworkError) {
             errorMsg = appContext != null ? appContext.getString(R.string.no_internet) : "No internet";
-        } else if (error instanceof RedirectError) {
+        } else if (throwable instanceof RedirectError) {
             errorMsg = appContext != null ? appContext.getString(R.string.redirect_error) : "Redirect Error";
+        } else {
+            errorMsg = throwable.getMessage();
+            errorMsg = errorMsg == null || errorMsg.trim().isEmpty() ? defErrorMsg : errorMsg;
         }
         return errorMsg;
     }

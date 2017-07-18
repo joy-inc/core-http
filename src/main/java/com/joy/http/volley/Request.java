@@ -657,7 +657,11 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     }
 
     public final boolean hasCache() {
-        String cacheKey = getCacheKey();
-        return mLauncher.getCache().hasCache(cacheKey);
+        RequestLauncher launcher = JoyHttp.getLauncher();
+        if (launcher == null) {
+            return false;
+        }
+        Cache cache = launcher.getCache();
+        return cache != null && cache.hasCache(getCacheKey());
     }
 }
