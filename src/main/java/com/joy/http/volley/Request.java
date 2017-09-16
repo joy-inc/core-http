@@ -36,6 +36,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import rx.Observable;
@@ -119,6 +120,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     private Object mTag;
 
     protected PublishSubject<T> mObserver;
+    private Priority mPriority = Priority.NORMAL;
 
     /**
      * Creates a new request with the given method (one of the values from {@link Method}),
@@ -359,8 +361,38 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         mHeaders = headers;
     }
 
+    public void addHeader(String key, Object value) {
+        if (mHeaders == null) {
+            mHeaders = new HashMap<>();
+        }
+        mHeaders.put(key, value.toString());
+    }
+
+    public void addHeaders(Map<String, String> headers) {
+        if (mHeaders == null) {
+            mHeaders = headers;
+        } else {
+            mHeaders.putAll(headers);
+        }
+    }
+
     public void setParams(Map<String, String> params) {
         mParams = params;
+    }
+
+    public void addParam(String key, Object value) {
+        if (mParams == null) {
+            mParams = new HashMap<>();
+        }
+        mParams.put(key, value.toString());
+    }
+
+    public void addParams(Map<String, String> params) {
+        if (mParams == null) {
+            mParams = params;
+        } else {
+            mParams.putAll(params);
+        }
     }
 
     /**
@@ -460,11 +492,15 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         IMMEDIATE
     }
 
+    public void setPriority(Priority priority) {
+        mPriority = priority;
+    }
+
     /**
      * Returns the {@link Priority} of this request; {@link Priority#NORMAL} by default.
      */
     public Priority getPriority() {
-        return Priority.NORMAL;
+        return mPriority;
     }
 
     /**

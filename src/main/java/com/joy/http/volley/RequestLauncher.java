@@ -83,8 +83,9 @@ public class RequestLauncher {
     private final PriorityBlockingQueue<Request<?>> mNetworkQueue = new PriorityBlockingQueue<>();
 
     /** Number of network request dispatcher threads to start. */
-    private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
-    private static final int DEFAULT_NETWORK_THREAD_POOL_SIZE = Math.max(2, Math.min(CPU_COUNT - 1, 4));
+//    private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
+//    private static final int DEFAULT_NETWORK_THREAD_POOL_SIZE = Math.max(2, Math.min(CPU_COUNT - 1, 4));
+    private static final int DEFAULT_NETWORK_THREAD_POOL_SIZE = 4;
 
     /** Cache interface for retrieving and storing responses. */
     private final Cache mCache;
@@ -174,13 +175,6 @@ public class RequestLauncher {
     }
 
     /**
-     * Gets a sequence number.
-     */
-    public int getSequenceNumber() {
-        return mSequenceGenerator.incrementAndGet();
-    }
-
-    /**
      * Gets the {@link Cache} instance being used.
      */
     public Cache getCache() {
@@ -200,7 +194,7 @@ public class RequestLauncher {
         }
 
         // Process requests in the order they are added.
-        request.setSequence(getSequenceNumber());
+        request.setSequence(mSequenceGenerator.incrementAndGet());
         request.addMarker("add-to-queue");
 
         // If the request is uncacheable, skip the cache queue and go straight to the network.
