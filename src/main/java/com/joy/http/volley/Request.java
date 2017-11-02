@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
@@ -470,9 +469,12 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         StringBuilder encodedParams = new StringBuilder();
         try {
             for (Map.Entry<String, String> entry : params.entrySet()) {
-                encodedParams.append(URLEncoder.encode(entry.getKey(), paramsEncoding));
+                if (entry.getKey() == null) {
+                    continue;
+                }
+                encodedParams.append(entry.getKey());
                 encodedParams.append('=');
-                encodedParams.append(URLEncoder.encode(entry.getValue(), paramsEncoding));
+                encodedParams.append(entry.getValue() == null ? "" : entry.getValue());
                 encodedParams.append('&');
             }
             return encodedParams.toString().getBytes(paramsEncoding);

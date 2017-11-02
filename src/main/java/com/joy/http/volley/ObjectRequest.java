@@ -75,7 +75,7 @@ public class ObjectRequest<T> extends JsonRequest<T> {
 
     protected final T shift(String json) throws IllegalAccessException, InstantiationException {
         T t;
-        if (TextUtils.isEmpty(json)) {
+        if (TextUtils.isEmpty(json) || "null".equalsIgnoreCase(json)) {
             t = (T) mClazz.newInstance();
         } else {
             if (json.startsWith("[")) {// JsonArray

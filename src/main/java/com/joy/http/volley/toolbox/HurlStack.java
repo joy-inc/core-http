@@ -123,7 +123,7 @@ public class HurlStack implements HttpStack {
                 List<String> values = header.getValue();
                 String value = "";
                 for (String v : values) {
-                    value += " " + v;
+                    value += "; " + v;
                 }
                 Header h = new BasicHeader(header.getKey(), value);
                 response.addHeader(h);
