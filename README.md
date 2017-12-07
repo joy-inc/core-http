@@ -217,3 +217,7 @@ JoyHttp.getLauncher().launchRefreshOnly(objReq)
 ```
 JoyHttp.shutDown();
 ```
+
+### Joy-Library中的引用体系
+
+![](core-http.png)
