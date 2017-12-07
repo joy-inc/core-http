@@ -27,6 +27,9 @@ import com.joy.http.volley.RequestLauncher;
 
 import java.io.File;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.GINGERBREAD;
+
 public class Volley {
 
     /** Default on-disk cache directory. */
@@ -54,7 +57,7 @@ public class Volley {
         }
 
         if (stack == null) {
-            if (Build.VERSION.SDK_INT >= 9) {
+            if (SDK_INT >= GINGERBREAD) {
                 stack = new HurlStack();
             } else {
                 // Prior to Gingerbread, HttpUrlConnection was unreliable.
