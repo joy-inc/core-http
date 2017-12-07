@@ -1,39 +1,18 @@
-### JoyHttp
+### core-http
 
-Android网络请求库
+**网络请求库**
 
-### Add JoyHttp to your project
-
-Gradle:
+### 外部引用
 
 ```
-compile 'com.joy.http:JoyHttp:0.2.1'
+compile 'com.joy.support:core-http:0.2.9'
 ```
 
-Maven:
-
-```
-<dependency>
-  <groupId>com.joy.http</groupId>
-  <artifactId>JoyHttp</artifactId>
-  <version>0.2.1</version>
-  <type>pom</type>
-</dependency>
-```
-
- Ivy:
-
- ```
- <dependency org='com.joy.http' name='JoyHttp' rev='0.2.0'>
-   <artifact name='$AID' ext='pom'></artifact>
- </dependency>
- ```
-
-### 请求方式：  
-- `JoyHttp.getLauncher().launchRefreshOnly();` `REFRESH_ONLY` 获取网络，响应；
-- `JoyHttp.getLauncher().launchCacheOrRefresh();` `CACHE_OR_REFRESH` 无缓存时获取网络，响应；有缓存时获取缓存，响应；
-- `JoyHttp.getLauncher().launchRefreshAndCache();` `REFRESH_AND_CACHE` 获取网络，更新缓存，响应；
-- `JoyHttp.getLauncher().launchCacheAndRefresh();` `CACHE_AND_REFRESH` 获取缓存，响应，然后获取网络，更新缓存，响应；
+### 请求方式：
+- `JoyHttp.getLauncher().launchRefreshOnly();` // 获取网络，响应；
+- `JoyHttp.getLauncher().launchCacheOrRefresh();` // 无缓存时获取网络，响应；有缓存时获取缓存，响应；
+- `JoyHttp.getLauncher().launchRefreshAndCache();` // 获取网络，更新缓存，响应；
+- `JoyHttp.getLauncher().launchCacheAndRefresh();` // 获取缓存，响应，然后获取网络，更新缓存，响应；
 
 **注意：每种请求方式的响应次数！**
 
@@ -41,11 +20,19 @@ Maven:
 - `RX订阅`
 - `Listener callback`
 
-### 第三方支持：
-- [x] `Volley`
-    - [ ] 优化下载大文件
-    - [ ] 优化加载图片
-- [ ] `Retrofit` `Okhttp`
+### 版本历史
+
+- `0.2.9` 升级fastjson到1.1.63.2.android，修正部分字段赋值失败的情况；
+
+- `0.2.6` 更新fastjson过滤String为null的情况；fix细节bugs；
+
+- `0.2.5` Request中增加setPriority方法，用来设置请求优先级；支持core-http-compiler;
+
+- `0.2.2` 修正接收文本数据时的编码格式；完善测试log，正式环境下不输出；删除无用的代码和文件；
+
+- `0.2.0` 史上最大更新。优化了大文件的下载；添加ImageRequest用来下载图片；下载支持显示进度；优化了内存占用；
+
+- `0.1.2` 大改版前的最后一版，网络请求的基础版本，支持get/post请求方式；
 
 ### 用法示例
 
