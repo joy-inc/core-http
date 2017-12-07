@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
@@ -472,10 +473,13 @@ public abstract class Request<T> implements Comparable<Request<T>> {
                 if (entry.getKey() == null) {
                     continue;
                 }
-                encodedParams.append(entry.getKey());
+                encodedParams.append(URLEncoder.encode(entry.getKey(), paramsEncoding));
                 encodedParams.append('=');
-                encodedParams.append(entry.getValue() == null ? "" : entry.getValue());
+                encodedParams.append(URLEncoder.encode(entry.getValue() == null ? "" : entry.getValue(), paramsEncoding));
                 encodedParams.append('&');
+            }
+            if (encodedParams.length() > 0) {
+                encodedParams.deleteCharAt(encodedParams.length() - 1);
             }
             return encodedParams.toString().getBytes(paramsEncoding);
         } catch (UnsupportedEncodingException e) {
