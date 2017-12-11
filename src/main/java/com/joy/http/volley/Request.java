@@ -58,7 +58,6 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * Supported request methods.
      */
     public enum Method {
-        DEPRECATED_GET_OR_POST,
         GET,
         POST,
         PUT,

@@ -18,7 +18,6 @@ package com.joy.http.volley.toolbox;
 
 import com.joy.http.volley.AuthFailureError;
 import com.joy.http.volley.Request;
-import com.joy.http.volley.Request.Method;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -93,22 +92,6 @@ public class HttpClientStack implements HttpStack {
     /* protected */ static HttpUriRequest createHttpRequest(Request<?> request,
             Map<String, String> additionalHeaders) throws AuthFailureError {
         switch (request.getMethod()) {
-            case DEPRECATED_GET_OR_POST: {
-                // This is the deprecated way that needs to be handled for backwards compatibility.
-                // If the request's post body is null, then the assumption is that the request is
-                // GET.  Otherwise, it is assumed that the request is a POST.
-                byte[] postBody = request.getBody();
-                if (postBody != null) {
-                    HttpPost postRequest = new HttpPost(request.getUrl());
-                    postRequest.addHeader(HTTP.CONTENT_TYPE, request.getBodyContentType());
-                    HttpEntity entity;
-                    entity = new ByteArrayEntity(postBody);
-                    postRequest.setEntity(entity);
-                    return postRequest;
-                } else {
-                    return new HttpGet(request.getUrl());
-                }
-            }
             case GET:
                 return new HttpGet(request.getUrl());
             case DELETE:
