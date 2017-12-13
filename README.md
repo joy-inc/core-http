@@ -5,7 +5,7 @@
 ### 外部引用
 
 ```
-compile 'com.joy.support:core-http:0.2.9'
+compile 'com.joy.support:core-http:0.3.0'
 ```
 
 ### 自身依赖
@@ -29,6 +29,8 @@ compile 'io.reactivex:rxandroid:1.2.1'
 - `Listener callback`
 
 ### 版本历史
+
+- `0.3.0` 支持上传图片 -- MultipartRequest
 
 - `0.2.9` 升级fastjson到1.1.63.2.android，修正部分字段赋值失败的情况；
 
@@ -218,6 +220,27 @@ JoyHttp.getLauncher().launchRefreshOnly(objReq)
             public void call() {
             }
         });
+```
+
+##### 上传图片
+
+```
+private void launchUploadImage(String key, String token, byte[] binary) {
+    MultipartRequest<UploadResult> uploadRequest = new MultipartRequest<>(HttpApi.URL_UPLOAD_QINIU, UploadResult.class);
+    uploadRequest.addParam("key", key);
+    uploadRequest.addParam("token", token);
+    uploadRequest.addByteArrayPart("file", new MultipartRequest.ByteArrayPart(binary, "filename"));
+    JoyHttp.getLauncher().launchRefreshOnly(uploadRequest)
+            .subscribe(new Action1<UploadResult>() {
+                @Override
+                public void call(UploadResult uploadResult) {
+                }
+            }, new Action1<Throwable>() {
+                @Override
+                public void call(Throwable throwable) {
+                }
+            });
+}
 ```
 
 ##### 销毁
