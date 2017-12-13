@@ -8,6 +8,14 @@
 compile 'com.joy.support:core-http:0.2.9'
 ```
 
+### 自身依赖
+
+```
+compile 'com.joy.support:fastjson:1.1.63.2.android'
+compile 'io.reactivex:rxjava:1.3.3'
+compile 'io.reactivex:rxandroid:1.2.1'
+```
+
 ### 请求方式：
 - `JoyHttp.getLauncher().launchRefreshOnly();` // 获取网络，响应；
 - `JoyHttp.getLauncher().launchCacheOrRefresh();` // 无缓存时获取网络，响应；有缓存时获取缓存，响应；
